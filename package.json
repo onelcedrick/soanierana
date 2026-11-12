@@ -1,0 +1,25 @@
+{
+  "name": "churchtask-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Application web de gestion des activites et responsabilites d'une eglise adventiste",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @churchtask/web dev",
+    "dev:api": "cd apps/api && npm run dev",
+    "build:web": "pnpm --filter @churchtask/web build",
+    "build:api": "cd apps/api && npm run build",
+    "test:api": "cd apps/api && npm test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,svelte,json,md}\"",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-svelte": "^3.2.6",
+    "typescript": "^5.5.4"
+  }
+}

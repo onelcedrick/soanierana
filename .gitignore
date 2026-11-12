@@ -1,0 +1,38 @@
+# NODE & PACKAGES
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# SVELTEKIT & BUILDS
+.svelte-kit/
+build/
+dist/
+.output/
+.vercel/
+.netlify/
+
+# IMAGES & UPLOADS (Locaux)
+uploads/
+public/uploads/
+static/uploads/
+*.jpg
+*.jpeg
+*.png
+*.webp
+
+# ENVIRONNEMENT
+.env
+.env.*
+!.env.example
+
+# BASE DE DONNÉES
+*.sqlite
+*.db
+
+# SYSTEME
+.DS_Store
+.vscode/
+.idea/
+package-lock.json
