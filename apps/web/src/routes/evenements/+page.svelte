@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { onMount } from 'svelte';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
@@ -11,7 +12,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/church/default', { cache: 'no-store' });
+      const res = await fetch(`${PUBLIC_API_URL}/church/default`, { cache: 'no-store' });
       const church = await res.json();
       events = await listEvents(church.id, false);
     } catch (err) {

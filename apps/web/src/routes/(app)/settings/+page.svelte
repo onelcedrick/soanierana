@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { auth } from '$lib/stores/auth';
   import { getSettings, updateSettings, updateChurchBranding, type SiteSettings } from '$lib/api/settings';
   import { generatePalette, applyTheme } from '$lib/theme/color-engine';
@@ -38,7 +39,7 @@
     try {
       settings = await getSettings(authState.user!.churchId, authState.token);
       
-      const res = await fetch('http://localhost:3000/api/church/default', { cache: 'no-store' });
+      const res = await fetch(`${PUBLIC_API_URL}/church/default`, { cache: 'no-store' });
       if (res.ok) {
         const church = await res.json();
         coverImageUrl = church.coverImageUrl || '';

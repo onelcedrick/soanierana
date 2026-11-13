@@ -3,14 +3,13 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
-  import { page } from '$app/stores';
-  import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
+  import { page, navigating } from '$app/stores';
   import AdminSidebar from '$lib/components/admin/AdminSidebar.svelte';
+  import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
 
   // --- ÉTAT DU MENU ---
   let isSidebarOpen = true; 
 
-  // Fermer le menu automatiquement sur mobile lors d'un changement de page
   $: if ($page.url.pathname) {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setTimeout(() => { isSidebarOpen = false; }, 150);
@@ -58,28 +57,24 @@
 
   onMount(() => {
     if (!get(auth).token) goto('/login');
-
-    // Fonction pour ajuster l'état en fonction de la taille de l'écran
+    
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        isSidebarOpen = true; // Toujours ouvert sur PC
-      } else {
-        isSidebarOpen = false; // Fermé sur mobile
-      }
+      if (window.innerWidth >= 768) isSidebarOpen = true;
+      else isSidebarOpen = false;
     };
-
-    // Appliquer immédiatement au chargement
     handleResize();
-
-    // Écouter les changements de taille (ex: redimensionnement, rotation d'écran)
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   });
 </script>
 
+<!-- Barre de chargement globale -->
+{#if $navigating}
+  <div class="fixed top-0 left-0 right-0 h-1 z-[999] bg-brand-500 transition-all duration-300 ease-out" style="width: 100%"></div>
+{/if}
+
 <div class="flex h-screen bg-[#f8fafc] overflow-hidden font-sans relative">
   
-  <!-- OVERLAY (Fond sombre sur mobile quand le menu est ouvert) -->
   {#if isSidebarOpen}
     <div 
       class="fixed inset-0 bg-slate-900/50 z-40 md:hidden backdrop-blur-sm transition-opacity" 
@@ -88,7 +83,7 @@
     ></div>
   {/if}
 
-  <!-- SIDEBAR (Pliable) -->
+  <!-- SIDEBAR -->
   <aside 
     class="
       fixed md:relative inset-y-0 left-0 z-50 
@@ -108,7 +103,6 @@
     <!-- Header -->
     <header class="h-[72px] bg-white flex items-center px-4 md:px-6 flex-shrink-0 z-30 shadow-sm border-b border-slate-200 gap-4">
       
-      <!-- Bouton pour plier/déplier le menu -->
       <button 
         on:click={() => isSidebarOpen = !isSidebarOpen} 
         class="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
@@ -125,7 +119,6 @@
         </svg>
       </button>
 
-      <!-- Barre de recherche fonctionnelle -->
       <div class="relative w-full max-w-md">
         <div class="flex items-center gap-3 bg-slate-100/60 px-4 py-2.5 rounded-xl border border-transparent focus-within:border-brand-300 focus-within:bg-white transition">
           <svg class="text-slate-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
@@ -145,7 +138,6 @@
           {/if}
         </div>
 
-        <!-- Résultats de recherche -->
         {#if showSearchResults && searchQuery.length > 0}
           <div class="absolute top-full left-0 mt-2 w-full bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 max-h-80 overflow-y-auto">
             {#if filteredResults.length === 0}
@@ -169,13 +161,13 @@
 
     </header>
 
-    <!-- Contenu principal (avec scroll indépendant) -->
+    <!-- Contenu principal sans transition bloquante -->
     <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-[#f8fafc]">
       <div class="max-w-[1400px] mx-auto">
         <slot />
       </div>
     </div>
   </main>
-
-  <ConfirmModal />
 </div>
+
+<ConfirmModal />

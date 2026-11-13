@@ -1,3 +1,4 @@
+import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from './client';
 
 export interface FormField {
@@ -46,7 +47,7 @@ export function submitResponse(formId: string, data: Record<string, any>) {
 }
 
 export function exportResponses(formId: string, token: string): Promise<Blob> {
-  return fetch('http://localhost:3000/api/forms/' + formId + '/export', {
+  return fetch(`${PUBLIC_API_URL}/forms/` + formId + '/export', {
     headers: { Authorization: 'Bearer ' + token }
   }).then(res => res.blob());
 }

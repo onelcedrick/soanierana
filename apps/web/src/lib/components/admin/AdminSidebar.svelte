@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
@@ -16,7 +17,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/church/default', { cache: 'no-store' });
+      const res = await fetch(`${PUBLIC_API_URL}/church/default`, { cache: 'no-store' });
       if (res.ok) {
         const church = await res.json();
         if (church.name) churchName = church.name;

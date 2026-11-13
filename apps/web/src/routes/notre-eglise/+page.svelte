@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import Navbar from '$lib/components/public/Navbar.svelte';
@@ -64,7 +65,7 @@
 
     // 2. Charger les albums (non-bloquant)
     try {
-      const res = await fetch("http://localhost:3000/api/church/default");
+      const res = await fetch(`${PUBLIC_API_URL}/church/default`);
       if (res.ok) {
         const church = await res.json();
         if (church && church.id) {

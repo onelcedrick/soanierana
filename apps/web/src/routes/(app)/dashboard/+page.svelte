@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import StatCard from '$lib/components/admin/StatCard.svelte';
   import RecentActivity from '$lib/components/admin/RecentActivity.svelte';
   import { getDashboardStats, type DashboardStats } from '$lib/api/dashboard';
@@ -25,7 +26,7 @@
 
     try {
       // 1. Charger l'image de fond de l'église
-      const churchRes = await fetch('http://localhost:3000/api/church/default');
+      const churchRes = await fetch(`${PUBLIC_API_URL}/church/default`);
       if (churchRes.ok) {
         const churchData = await churchRes.json();
         if (churchData.coverImageUrl) {
