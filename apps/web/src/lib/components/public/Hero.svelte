@@ -14,8 +14,8 @@
   <Navbar transparent={true} />
 
   <div class="relative z-10 max-w-6xl mx-auto px-6 w-full mt-16">
-    <div class="max-w-2xl text-white">
-      <p class="text-brand-300 font-semibold tracking-widest text-sm mb-4 uppercase">Ensemble pour servir</p>
+    <div class="max-w-2xl text-white pt-20 md:pt-0 ">
+      
       <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6">
         Une Église Organisée,<br>Une Communauté Unie
       </h1>
