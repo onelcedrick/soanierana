@@ -6,6 +6,7 @@
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
   import ShareButton from '$lib/components/ui/ShareButton.svelte';
+  import { API_ROOT_URL } from '$lib/api/config';
   import type { Publication } from '$lib/api/types';
 
   let publications: Publication[] = [];
@@ -14,7 +15,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/church/default');
+      const res = await fetch(`${API_ROOT_URL}/api/church/default`);
       if (!res.ok) throw new Error('Impossible de charger les informations.');
       const church = await res.json();
 
