@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { PUBLIC_API_URL } from '$env/static/public';
   import { auth } from '$lib/stores/auth';
   import { getSettings, updateSettings, updateChurchBranding, type SiteSettings } from '$lib/api/settings';
   import { generatePalette, applyTheme } from '$lib/theme/color-engine';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import { PUBLIC_API_URL } from '$env/static/public';
 
   let loading = true;
   let message = '';
@@ -14,7 +14,7 @@
   let settings: SiteSettings | null = null;
   let savingSettings = false;
 
-  // Branding (Logo & Image)
+  // Branding
   let coverImageUrl = ''; 
   let newCoverPreview = ''; 
   let savingImage = false;
@@ -39,7 +39,9 @@
     try {
       settings = await getSettings(authState.user!.churchId, authState.token);
       
-      const res = await fetch(`${PUBLIC_API_URL}/church/default`, { cache: 'no-store' });
+      const API_ROOT = PUBLIC_API_URL ? PUBLIC_API_URL.replace('/api', '') : 'http://localhost:3000';
+      const res = await fetch(`${API_ROOT}/api/church/default`, { cache: 'no-store' });
+      
       if (res.ok) {
         const church = await res.json();
         coverImageUrl = church.coverImageUrl || '';
@@ -122,15 +124,17 @@
         body: JSON.stringify({ themeConfig: { primaryColor, isDark: isDarkMode } })
       });
       
-      // On sauvegarde dans le navigateur pour l'appliquer instantanément au prochain chargement
       if (typeof window !== 'undefined') {
         localStorage.setItem('church_theme', JSON.stringify({ primaryColor, isDark: isDarkMode }));
       }
 
       themeMsg = 'Thème enregistré !';
       setTimeout(() => window.location.reload(), 1000);
-    } catch (err) { themeMsg = 'Erreur thème.'; } finally { savingTheme = false; }
-  }
+    } catch (err) { 
+      themeMsg = 'Erreur thème.'; 
+    } finally { 
+      savingTheme = false; 
+    }
   }
 
   async function onSaveSettings() {
@@ -187,10 +191,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">Couleur primaire</label>
+              <label for="primary-color" class="block text-sm font-medium text-slate-700 mb-1.5">Couleur primaire</label>
               <div class="flex gap-2">
-                <!-- Zone de clic agrandie pour mobile -->
-                <input type="color" bind:value={primaryColor} on:input={previewTheme} class="w-14 h-12 md:w-12 md:h-10 rounded-lg cursor-pointer border border-slate-300 p-0 shrink-0" />
+                <input id="primary-color" type="color" bind:value={primaryColor} on:input={previewTheme} class="w-14 h-12 md:w-12 md:h-10 rounded-lg cursor-pointer border border-slate-300 p-0 shrink-0" />
                 <input type="text" bind:value={primaryColor} on:input={previewTheme} class="flex-1 w-full border border-slate-300 px-3 py-2 rounded-lg font-mono text-sm outline-none focus:border-brand-500 transition" />
               </div>
             </div>
@@ -198,7 +201,6 @@
               <input type="checkbox" bind:checked={isDarkMode} on:change={previewTheme} class="w-5 h-5 text-brand-600 rounded border-slate-300 focus:ring-brand-500" />
               Activer le mode sombre (Dark Mode)
             </label>
-            <!-- Boutons de thème prédéfinis plus tactiles -->
             <div class="flex flex-wrap gap-2 text-xs">
               <button type="button" on:click={() => { primaryColor = '#0ea5e9'; isDarkMode = false; previewTheme(); }} class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition">Défaut</button>
               <button type="button" on:click={() => { primaryColor = '#E91E63'; previewTheme(); }} class="bg-pink-50 hover:bg-pink-100 text-pink-700 font-medium px-3 py-1.5 rounded-lg transition">Octobre Rose</button>
@@ -231,7 +233,7 @@
       <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div>
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition relative h-32 flex items-center justify-center">
-            <input type="file" accept="image/*" on:change={handleLogoUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            <input title="Choisir un logo" type="file" accept="image/*" on:change={handleLogoUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <p class="text-sm font-bold text-slate-700">Choisir un logo</p>
           </div>
           <button on:click={onSaveLogo} disabled={savingLogo} class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 transition disabled:opacity-50 text-sm md:text-base shadow-sm">
@@ -262,7 +264,7 @@
       <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <div>
           <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition relative h-32 flex items-center justify-center">
-            <input type="file" accept="image/*" on:change={handleFileUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            <input title="Choisir une image" type="file" accept="image/*" on:change={handleFileUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <p class="text-sm font-bold text-slate-700">Choisir une image</p>
           </div>
           <button on:click={onSaveImage} disabled={savingImage} class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 transition disabled:opacity-50 text-sm md:text-base shadow-sm">
@@ -297,7 +299,6 @@
           <option value="LEAST_ASSIGNED">Moins d'attributions en premier</option>
         </select>
         
-        <!-- AJOUT DU CYCLE -->
         <div class="mt-6 border-t border-slate-100 pt-6">
           <label class="block text-sm font-medium text-slate-700 mb-2">Cycle de rotation (en semaines)</label>
           <p class="text-xs text-slate-500 mb-3">Un membre publié ne sera plus affecté pendant ce nombre de semaines.</p>

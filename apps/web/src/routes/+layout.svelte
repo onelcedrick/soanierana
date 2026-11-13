@@ -3,13 +3,16 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { generatePalette, applyTheme } from '$lib/theme/color-engine';
-  import { API_ROOT_URL } from '$lib/api/config';
+  import { PUBLIC_API_URL } from '$env/static/public';
   import '../app.css';
+
+  // On détermine l'URL de base de l'API
+  const API_ROOT = PUBLIC_API_URL ? PUBLIC_API_URL.replace('/api', '') : 'http://localhost:3000';
 
   onMount(async () => {
     if (!browser) return;
 
-    // 1. Appliquer le thème depuis le cache (localStorage) IMMÉDIATEMENT
+    // 1. Appliquer le thème depuis le cache (localStorage) pour un affichage instantané
     try {
       const cached = localStorage.getItem('church_theme');
       if (cached) {
@@ -20,9 +23,9 @@
       console.error("Erreur lecture cache thème", e);
     }
 
-    // 2. Récupérer le thème depuis la base de données et mettre à jour le cache
+    // 2. Récupérer le thème depuis la base de données pour être sûr d'avoir le dernier
     try {
-      const res = await fetch(`${API_ROOT_URL}/api/church/default`, { cache: 'no-store' });
+      const res = await fetch(`${API_ROOT}/api/church/default`, { cache: 'no-store' });
       if (res.ok) {
         const church = await res.json();
         if (church.themeConfig) {
