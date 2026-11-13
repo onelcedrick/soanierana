@@ -1,4 +1,4 @@
-<div class="bg-white border-b border-slate-100 py-6 md:py-8 relative z-20 mt-8 md:mt-4 md:mt-6 md:-mt-24 mx-4 md:mx-auto max-w-5xl rounded-2xl shadow-lg">
+<div class="bg-white border-b border-slate-100 py-6 md:py-8 relative z-20 mt-8 md:mt-4 md:mt-12 md:-mt-24 mx-4 md:mx-auto max-w-5xl rounded-2xl shadow-lg">
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 px-4 md:px-6 text-center md:text-left">
     <div class="flex flex-col md:flex-row items-center gap-2 md:gap-3">
       <div class="text-brand-600 bg-brand-50 p-2 rounded-lg shrink-0">
