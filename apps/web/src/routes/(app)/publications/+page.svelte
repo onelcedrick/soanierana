@@ -148,16 +148,16 @@
   
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
     <div>
-      <label class="block text-sm font-medium text-slate-700 mb-1">Audience</label>
-      <select bind:value={form.audience} class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
+      <label for="audience" class="block text-sm font-medium text-slate-700 mb-1">Audience</label>
+      <select id="audience" bind:value={form.audience} class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
         <option value="PUBLIC">Public</option>
         <option value="MEMBERS_ONLY">Membres uniquement</option>
       </select>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-slate-700 mb-1">Photo de couverture</label>
-      <input type="file" accept="image/*" on:change={handleFileUpload} class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer" />
+      <label for="cover-image" class="block text-sm font-medium text-slate-700 mb-1">Photo de couverture</label>
+      <input id="cover-image" type="file" accept="image/*" on:change={handleFileUpload} class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer" />
     </div>
   </div>
 
@@ -165,7 +165,7 @@
     <div class="relative w-32 h-24 md:w-48 md:h-32 rounded-lg overflow-hidden border border-slate-200 shadow-sm mt-2">
       <img src={form.coverImageUrl} alt="Apercu" class="w-full h-full object-cover" />
       <!-- Remplacement de l'emoji par une icône SVG -->
-      <button type="button" on:click={() => form.coverImageUrl = ''} class="absolute top-1 right-1 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-sm text-slate-500 hover:text-red-500 hover:bg-red-50 transition">
+      <button type="button" aria-label="Supprimer l'image" on:click={() => form.coverImageUrl = ''} class="absolute top-1 right-1 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-sm text-slate-500 hover:text-red-500 hover:bg-red-50 transition">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
       </button>
     </div>
