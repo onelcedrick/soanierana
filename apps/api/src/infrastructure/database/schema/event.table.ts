@@ -9,7 +9,8 @@ export const events = pgTable('events', {
   startDate: timestamp('start_date', { withTimezone: true }).notNull(),
   endDate: timestamp('end_date', { withTimezone: true }),
   location: varchar('location', { length: 255 }),
-  coverImageUrl: text('cover_image_url'), // <-- TEXT
+  coverImageUrl: text('cover_image_url'),
+  status: varchar('status', { length: 50 }).default('PUBLISHED').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
