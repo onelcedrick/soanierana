@@ -116,7 +116,7 @@
   async function onSaveTheme() {
     savingTheme = true; themeMsg = '';
     try {
-      await fetch(`http://localhost:3000/api/churches/${get(auth).user!.churchId}/theme`, {
+      await fetch(`${PUBLIC_API_URL}/churches/${get(auth).user!.churchId}/theme`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${get(auth).token}` },
         body: JSON.stringify({ themeConfig: { primaryColor, isDark: isDarkMode } })
