@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { listPublicPolls, castPublicVote, castMemberVote, type PublicPoll } from '$lib/api/polls';
+  import ShareButton from '$lib/components/ui/ShareButton.svelte';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
   import { auth } from '$lib/stores/auth';
@@ -122,7 +123,10 @@
             <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
               <div>
                 <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <div class="flex items-center gap-2">
                   <h3 class="font-bold text-slate-900 text-lg md:text-xl">{poll.title}</h3>
+                  <ShareButton url={`${typeof window !== 'undefined' ? window.location.origin : ''}/sondages`} title={poll.title} />
+                </div>
                   {#if poll.audience === 'MEMBERS_ONLY'}
                     <span class="text-[10px] font-bold bg-brand-100 text-brand-700 px-2 py-0.5 rounded uppercase tracking-wide">Membres</span>
                   {/if}

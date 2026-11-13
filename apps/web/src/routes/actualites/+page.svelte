@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import { listPublicPublications } from '$lib/api/publications';
+  import ShareButton from '$lib/components/ui/ShareButton.svelte';
   import NewsCard from '$lib/components/public/NewsCard.svelte';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
@@ -65,15 +66,18 @@
     {:else}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-start">
         {#each publications as pub, i}
-          <div in:fly={{ y: 40, duration: 600, delay: i * 100 }} class="h-full">
-            <NewsCard 
-              title={pub.title} 
-              date={new Date(pub.publishedAt || Date.now()).toLocaleDateString('fr-FR')} 
-              excerpt={pub.content} 
-              image={pub.coverImageUrl} 
-            />
-          </div>
-        {/each}
+      <div class="relative group h-full">
+        <div class="absolute bottom-4 right-4 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+          <ShareButton url={`${typeof window !== 'undefined' ? window.location.origin : ''}/actualites`} title={pub.title} />
+        </div>
+        <NewsCard 
+          title={pub.title} 
+          date={new Date(pub.publishedAt || Date.now()).toLocaleDateString('fr-FR')} 
+          excerpt={pub.content} 
+          image={pub.coverImageUrl} 
+        />
+      </div>
+    {/each}
       </div>
     {/if}
   </main>

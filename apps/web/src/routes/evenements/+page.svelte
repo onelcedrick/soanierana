@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
+  import ShareButton from '$lib/components/ui/ShareButton.svelte';
   import EventCard from '$lib/components/public/EventCard.svelte';
   import { listEvents, type Event } from '$lib/api/events';
 
@@ -56,8 +57,13 @@
     {:else}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
         {#each events as ev}
-          <EventCard event={ev} />
-        {/each}
+      <div class="relative group h-full">
+        <div class="absolute bottom-4 right-4 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+          <ShareButton url={`${typeof window !== 'undefined' ? window.location.origin : ''}/evenements`} title={ev.title} />
+        </div>
+        <EventCard event={ev} />
+      </div>
+    {/each}
       </div>
     {/if}
   </main>
