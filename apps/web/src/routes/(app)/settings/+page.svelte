@@ -121,9 +121,16 @@
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${get(auth).token}` },
         body: JSON.stringify({ themeConfig: { primaryColor, isDark: isDarkMode } })
       });
+      
+      // On sauvegarde dans le navigateur pour l'appliquer instantanément au prochain chargement
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('church_theme', JSON.stringify({ primaryColor, isDark: isDarkMode }));
+      }
+
       themeMsg = 'Thème enregistré !';
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) { themeMsg = 'Erreur thème.'; } finally { savingTheme = false; }
+  }
   }
 
   async function onSaveSettings() {
