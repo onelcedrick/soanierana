@@ -9,6 +9,31 @@
   let data: any = null;
   let albums: Album[] = [];
   let selectedAlbum: Album | null = null;
+  let currentImageIndex = 0;
+
+  function openAlbum(alb: Album) {
+    selectedAlbum = alb;
+    currentImageIndex = 0;
+  }
+
+  function nextImage() {
+    if (selectedAlbum && currentImageIndex < selectedAlbum.images.length - 1) {
+      currentImageIndex++;
+    }
+  }
+
+  function prevImage() {
+    if (currentImageIndex > 0) {
+      currentImageIndex--;
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (!selectedAlbum) return;
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'Escape') selectedAlbum = null;
+  }
   let loading = true;
   
   // Formulaire de don
@@ -242,13 +267,13 @@
             {#each albums as alb}
               <div 
                 class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden cursor-pointer hover:shadow-lg transition group"
-                on:click={() => selectedAlbum = alb}
+                on:click={() => openAlbum(alb)}
                 role="button"
                 tabindex="0"
               >
                 <div class="h-48 bg-slate-100 overflow-hidden relative">
                   {#if alb.images.length > 0}
-                    <img src={alb.images[0]} class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt={alb.title} />
+                    <img src={alb.images[0]} loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt={alb.title} />
                     <div class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-xs font-bold px-2 py-1 rounded-lg backdrop-blur-sm">
                       {alb.images.length} photo(s)
                     </div>
@@ -273,27 +298,62 @@
 
 <!-- Modal de Don -->
 
+<svelte:window on:keydown={handleKeydown} />
+
 <!-- VISIONNEUSE D ALBUM -->
 {#if selectedAlbum}
-  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md" on:click={() => selectedAlbum = null} role="presentation">
-    <div class="relative w-full max-w-4xl max-h-[90vh] flex flex-col" on:click|stopPropagation role="dialog" aria-modal="true">
-      
-      <div class="flex justify-between items-center mb-4 text-white">
-        <div>
-          <h2 class="text-2xl font-bold">{selectedAlbum.title}</h2>
-          <p class="text-sm text-slate-300">{selectedAlbum.description}</p>
-        </div>
-        <button on:click={() => selectedAlbum = null} class="bg-white/10 hover:bg-white/20 p-2 rounded-full transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
-        </button>
+  <div class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-slate-900/95 backdrop-blur-md" on:click={() => selectedAlbum = null} role="presentation">
+    
+    <!-- En-tête -->
+    <div class="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-10 bg-gradient-to-b from-slate-900/80 to-transparent pointer-events-none">
+      <div class="pointer-events-auto">
+        <h2 class="text-2xl font-bold text-white">{selectedAlbum.title}</h2>
+        <p class="text-sm text-slate-300 mt-1 max-w-2xl">{selectedAlbum.description}</p>
       </div>
-
-      <div class="overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 pb-8">
-        {#each selectedAlbum.images as img}
-          <img src={img} alt="Photo" class="w-full h-auto object-cover rounded-xl shadow-lg" />
-        {/each}
-      </div>
+      <button on:click={() => selectedAlbum = null} class="pointer-events-auto bg-white/10 hover:bg-white/20 p-2 rounded-full transition text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+      </button>
     </div>
+
+    <!-- Zone Image -->
+    <div class="relative w-full max-w-6xl flex items-center justify-center h-[75vh] mt-12" on:click|stopPropagation role="dialog" aria-modal="true">
+      
+      {#if selectedAlbum.images.length > 0}
+        
+        <!-- Flèche Gauche -->
+        {#if currentImageIndex > 0}
+          <button on:click={prevImage} class="absolute left-0 md:left-4 z-10 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition backdrop-blur-sm shadow-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+        {/if}
+
+        <!-- Image Principale -->
+        <img 
+          src={selectedAlbum.images[currentImageIndex]} 
+          alt="Photo {currentImageIndex + 1}" 
+          class="max-h-full max-w-full object-contain rounded-xl shadow-2xl transition-all duration-300" 
+        />
+
+        <!-- Flèche Droite -->
+        {#if currentImageIndex < selectedAlbum.images.length - 1}
+          <button on:click={nextImage} class="absolute right-0 md:right-4 z-10 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition backdrop-blur-sm shadow-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        {/if}
+
+      {:else}
+        <p class="text-white text-lg">Aucune image dans cet album.</p>
+      {/if}
+      
+    </div>
+
+    <!-- Compteur -->
+    {#if selectedAlbum.images.length > 0}
+      <div class="mt-6 text-white font-medium bg-slate-800/80 px-5 py-2 rounded-full text-sm backdrop-blur-sm border border-slate-700">
+        {currentImageIndex + 1} / {selectedAlbum.images.length}
+      </div>
+    {/if}
+
   </div>
 {/if}
 
@@ -322,13 +382,13 @@
           {/if}
           
           <!-- ÉTAPE 1 : INSTRUCTIONS DE PAIEMENT EN PREMIER -->
-          <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-6">
-            <h3 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
-              <span class="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
+          <div class="bg-brand-50 border border-brand-200 p-4 rounded-xl mb-6">
+            <h3 class="font-bold text-brand-900 mb-2 flex items-center gap-2">
+              <span class="bg-brand-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">1</span>
               Faites le transfert
             </h3>
-            <p class="text-sm text-blue-800 mb-2">Envoyez votre don via :</p>
-            <div class="bg-white p-3 rounded-lg border border-blue-100 font-medium text-slate-800 text-sm">
+            <p class="text-sm text-brand-800 mb-2">Envoyez votre don via :</p>
+            <div class="bg-white p-3 rounded-lg border border-brand-100 font-medium text-slate-800 text-sm">
               {#if donateForm.paymentMethod === 'Mobile Money'}
                 <p>{paymentInfo.mobileMoney}</p>
               {:else if donateForm.paymentMethod === 'Virement'}

@@ -2,6 +2,7 @@
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import ProfileModal from './ProfileModal.svelte';
   import MessageModal from './MessageModal.svelte';
   import LoginModal from './LoginModal.svelte';
@@ -9,6 +10,7 @@
   export let transparent = false;
   
   let showDropdown = false;
+  let showMobileMenu = false;
   let showProfileModal = false;
   let showMessageModal = false;
   let showLoginModal = false;
@@ -17,13 +19,28 @@
   let churchName = 'ChurchTask';
   let scrolled = false;
 
+  // Gestion de la visibilité de la cloche (PC, Tablette et Mobile)
+  let isBellVisible = true;
+
   onMount(async () => {
-    // Écouter le scroll pour rendre la navbar solide
+    if (browser) {
+      // 1. Détecter si c'est un rechargement de page (F5) pour réafficher la cloche
+      const isReload = window.performance.getEntriesByType("navigation")[0]?.type === "reload";
+      if (isReload) {
+        sessionStorage.removeItem('hide_donation_bell');
+      }
+
+      // 2. Vérifier si la cloche a été cliquée précédemment dans cette session
+      if (sessionStorage.getItem('hide_donation_bell') === 'true') {
+        isBellVisible = false;
+      }
+    }
+
     const handleScroll = () => {
       scrolled = window.scrollY > 20;
     };
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Vérifier au chargement
+    handleScroll();
 
     try {
       const res = await fetch('http://localhost:3000/api/church/default', { cache: 'no-store' });
@@ -39,9 +56,18 @@
     return () => window.removeEventListener('scroll', handleScroll);
   });
 
+  // Fonction appelée quand on clique sur la cloche (sur n'importe quel appareil)
+  function handleBellClick() {
+    isBellVisible = false;
+    if (browser) {
+      sessionStorage.setItem('hide_donation_bell', 'true');
+    }
+  }
+
   function logout() {
     auth.logout();
     goto('/');
+    showMobileMenu = false;
   }
 
   function closeDropdown() { showDropdown = false; }
@@ -51,22 +77,41 @@
 
 <svelte:window on:click={closeDropdown} />
 
-<!-- La navbar est maintenant "fixed" et change de fond au scroll -->
-<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {scrolled || !transparent ? 'bg-slate-900 text-white shadow-md' : 'bg-transparent text-white'}">
-  <div class="max-w-6xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
-    <!-- Logo et Nom -->
-    <a href="/" class="flex items-center gap-3">
-      {#if logoUrl}
-        <img src={logoUrl} alt="Logo" class="w-10 h-10 object-contain rounded-full bg-white p-0.5" />
-      {:else}
-        <div class="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+<nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {scrolled || !transparent || showMobileMenu ? 'bg-slate-900 text-white shadow-md' : 'bg-transparent text-white'}">
+  <div class="max-w-6xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between relative z-50">
+    
+    <!-- Logo, Nom et Cloche (Visible sur tous les appareils) -->
+    <div class="flex items-center gap-3">
+      <a href="/" class="flex items-center gap-2 md:gap-3" on:click={() => showMobileMenu = false}>
+        {#if logoUrl}
+          <img src={logoUrl} alt="Logo" class="w-10 h-10 object-contain rounded-full bg-white p-0.5" />
+        {:else}
+          <div class="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+        {/if}
+        <div class="font-bold text-base md:text-xl leading-tight max-w-[150px] md:max-w-[200px] truncate">
+          {churchName}
         </div>
+      </a>
+
+      <!-- PETITE CLOCHE ANIMÉE (S'affiche tant qu'elle n'a pas été cliquée) -->
+      {#if isBellVisible}
+        <a href="/notre-eglise" on:click={handleBellClick} class="relative p-2 bg-white/10 hover:bg-brand-500 rounded-full transition-colors group cursor-pointer" title="Faire un don pour la reconstruction">
+          <div class="animate-bell">
+            <svg class="text-brand-400 group-hover:text-white transition-colors" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+          </div>
+          <!-- Point rouge clignotant -->
+          <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border border-slate-900"></span>
+          </span>
+        </a>
       {/if}
-      <div class="font-bold text-base md:text-xl leading-tight max-w-[200px] truncate">
-        {churchName}
-      </div>
-    </a>
+    </div>
     
     <!-- Menu Desktop -->
     <div class="hidden md:flex items-center gap-8 font-medium text-sm">
@@ -78,11 +123,12 @@
       <a href="/contact" class="hover:opacity-80 transition">Contact</a>
     </div>
 
-    <!-- Zone de connexion / Profil -->
-    <div class="flex items-center gap-4">
+    <!-- Zone de connexion / Profil / Menu Mobile -->
+    <div class="flex items-center gap-2 md:gap-4">
+      
       {#if $auth.token}
         <div class="relative" on:click|stopPropagation={() => {}}>
-          <button on:click={() => showDropdown = !showDropdown} class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-white/20 px-3 py-2 rounded-full transition text-white">
+          <button on:click={() => { showDropdown = !showDropdown; showMobileMenu = false; }} class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-white/20 px-3 py-2 rounded-full transition text-white">
             <div class="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold">
               {$auth.user?.role === 'MEMBER' ? 'M' : 'AD'}
             </div>
@@ -118,7 +164,7 @@
         </div>
       {:else}
         <div class="relative" on:click|stopPropagation={() => {}}>
-          <button on:click={() => showLoginModal = true} class="bg-white text-slate-900 px-4 py-2 md:px-6 md:py-2.5 rounded-full font-medium text-xs md:text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition">
+          <button on:click={() => { showLoginModal = true; showMobileMenu = false; }} class="bg-white text-slate-900 px-4 py-2 md:px-6 md:py-2.5 rounded-full font-medium text-xs md:text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="hidden sm:inline">Se connecter</span>
             <span class="sm:hidden">Connexion</span>
@@ -127,9 +173,51 @@
           <LoginModal bind:show={showLoginModal} onClose={() => showLoginModal = false} />
         </div>
       {/if}
+
+      <!-- Bouton Hamburger (Mobile) -->
+      <button on:click={() => { showMobileMenu = !showMobileMenu; showDropdown = false; }} class="md:hidden text-white p-2 -mr-2 relative z-50">
+        {#if showMobileMenu}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+        {:else}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+        {/if}
+      </button>
+
     </div>
   </div>
 </nav>
+
+<!-- Menu Mobile Plein Écran -->
+{#if showMobileMenu}
+  <div class="fixed inset-0 z-40 bg-[#0b1120] md:hidden flex flex-col pt-20 animate-in slide-in-from-top-4 duration-200">
+    <div class="flex flex-col gap-2 text-white text-lg font-medium px-6 pt-4">
+      <a href="/" class="py-4 border-b border-white/10 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Accueil
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/actualites" class="py-4 border-b border-white/10 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Actualités
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/evenements" class="py-4 border-b border-white/10 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Événements
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/sondages" class="py-4 border-b border-white/10 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Sondages
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/notre-eglise" class="py-4 border-b border-white/10 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Notre Église
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/contact" class="py-4 hover:text-brand-400 transition flex justify-between items-center" on:click={() => showMobileMenu = false}>
+        Contact
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+  </div>
+{/if}
 
 <ProfileModal bind:show={showProfileModal} onClose={() => showProfileModal = false} />
 <MessageModal bind:show={showMessageModal} onClose={() => showMessageModal = false} />

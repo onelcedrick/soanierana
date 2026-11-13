@@ -3,13 +3,24 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import { page } from '$app/stores';
+  import ConfirmModal from '$lib/components/ui/ConfirmModal.svelte';
   import AdminSidebar from '$lib/components/admin/AdminSidebar.svelte';
+
+  // --- ÉTAT DU MENU ---
+  let isSidebarOpen = true; 
+
+  // Fermer le menu automatiquement sur mobile lors d'un changement de page
+  $: if ($page.url.pathname) {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setTimeout(() => { isSidebarOpen = false; }, 150);
+    }
+  }
 
   // --- RECHERCHE GLOBALE ---
   let searchQuery = '';
   let showSearchResults = false;
 
-  // Données pour la recherche
   const searchData = [
     { title: 'Tableau de bord', path: '/dashboard', keywords: 'accueil home' },
     { title: 'Actualités', path: '/publications', keywords: 'actus articles posts' },
@@ -24,7 +35,6 @@
     { title: 'Journal d\'activités', path: '/logs', keywords: 'logs historique sécurité' },
   ];
 
-  // Filtrer les résultats
   $: filteredResults = searchData.filter(item => 
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     item.keywords.toLowerCase().includes(searchQuery.toLowerCase())
@@ -42,23 +52,79 @@
     }
   }
 
-  // Fermer les résultats si on clique ailleurs
   function closeSearch() {
     setTimeout(() => showSearchResults = false, 200);
   }
 
   onMount(() => {
     if (!get(auth).token) goto('/login');
+
+    // Fonction pour ajuster l'état en fonction de la taille de l'écran
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        isSidebarOpen = true; // Toujours ouvert sur PC
+      } else {
+        isSidebarOpen = false; // Fermé sur mobile
+      }
+    };
+
+    // Appliquer immédiatement au chargement
+    handleResize();
+
+    // Écouter les changements de taille (ex: redimensionnement, rotation d'écran)
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   });
 </script>
 
-<div class="flex h-screen bg-[#f8fafc] overflow-hidden font-sans">
-  <AdminSidebar />
+<div class="flex h-screen bg-[#f8fafc] overflow-hidden font-sans relative">
+  
+  <!-- OVERLAY (Fond sombre sur mobile quand le menu est ouvert) -->
+  {#if isSidebarOpen}
+    <div 
+      class="fixed inset-0 bg-slate-900/50 z-40 md:hidden backdrop-blur-sm transition-opacity" 
+      on:click={() => isSidebarOpen = false}
+      role="presentation"
+    ></div>
+  {/if}
+
+  <!-- SIDEBAR (Pliable) -->
+  <aside 
+    class="
+      fixed md:relative inset-y-0 left-0 z-50 
+      bg-white border-r border-slate-200 shadow-sm
+      transition-all duration-300 ease-in-out overflow-hidden
+      {isSidebarOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-[260px] md:w-0 md:translate-x-0 border-none'}
+    "
+  >
+    <div class="w-[260px] h-full">
+      <AdminSidebar />
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
   <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
     
-    <!-- Header épuré -->
-    <header class="h-[72px] bg-white flex items-center px-6 flex-shrink-0 z-20 shadow-sm border-b border-slate-200">
+    <!-- Header -->
+    <header class="h-[72px] bg-white flex items-center px-4 md:px-6 flex-shrink-0 z-30 shadow-sm border-b border-slate-200 gap-4">
       
+      <!-- Bouton pour plier/déplier le menu -->
+      <button 
+        on:click={() => isSidebarOpen = !isSidebarOpen} 
+        class="p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
+        title={isSidebarOpen ? "Plier le menu" : "Déplier le menu"}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          {#if isSidebarOpen}
+            <polyline points="15 18 9 12 15 6"></polyline>
+          {:else}
+            <line x1="4" x2="20" y1="12" y2="12"></line>
+            <line x1="4" x2="20" y1="6" y2="6"></line>
+            <line x1="4" x2="20" y1="18" y2="18"></line>
+          {/if}
+        </svg>
+      </button>
+
       <!-- Barre de recherche fonctionnelle -->
       <div class="relative w-full max-w-md">
         <div class="flex items-center gap-3 bg-slate-100/60 px-4 py-2.5 rounded-xl border border-transparent focus-within:border-brand-300 focus-within:bg-white transition">
@@ -69,7 +135,7 @@
             on:focus={() => showSearchResults = true}
             on:blur={closeSearch}
             on:keydown={handleSearchKeydown}
-            placeholder="Rechercher une page, un module..." 
+            placeholder="Rechercher..." 
             class="bg-transparent border-none outline-none text-sm w-full text-slate-700 placeholder-slate-400" 
           />
           {#if searchQuery}
@@ -103,11 +169,13 @@
 
     </header>
 
-    <!-- Contenu principal -->
-    <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-[#f8fafc]">
+    <!-- Contenu principal (avec scroll indépendant) -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-[#f8fafc]">
       <div class="max-w-[1400px] mx-auto">
         <slot />
       </div>
     </div>
   </main>
+
+  <ConfirmModal />
 </div>

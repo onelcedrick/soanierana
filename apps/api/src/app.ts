@@ -25,8 +25,10 @@ import { settingsRoutes } from './presentation/routes/settings.routes';
 import { auditRoutes } from './presentation/routes/audit.routes';
 import { dashboardRoutes } from './presentation/routes/dashboard.routes';
 import { messageRoutes } from './presentation/routes/message.routes';
+import { albumRoutes } from './presentation/routes/album.routes';
 import { campaignRoutes } from './presentation/routes/campaign.routes'; // <-- Import ajouté
 import { authPlugin } from './presentation/plugins/auth.plugin';
+import { auditPlugin } from './presentation/plugins/audit.plugin';
 import { buildContainer } from './presentation/container';
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -45,6 +47,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   registerNotFoundHandler(app);
 
   const c = buildContainer();
+  await app.register(auditPlugin, { container: c });
   await app.register(healthRoutes, { prefix: '/api' });
   await app.register(authRoutes, { prefix: '/api', container: c });
   await app.register(churchRoutes, { prefix: '/api', container: c });
@@ -64,6 +67,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(auditRoutes, { prefix: '/api', container: c });
   await app.register(dashboardRoutes, { prefix: '/api', container: c });
   await app.register(messageRoutes, { prefix: '/api' });
+  await app.register(albumRoutes, { prefix: '/api' });
   await app.register(campaignRoutes, { prefix: '/api' }); // <-- Enregistrement ajouté
 
   return app;

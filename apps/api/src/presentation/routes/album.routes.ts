@@ -15,12 +15,12 @@ export async function albumRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST : Créer un album (Admin)
-  app.post('/albums', { preHandler: [app.authorize('ADMIN')] }, async (req, reply) => {
+  app.post('/albums', { bodyLimit: 52428800, preHandler: [app.authorize('ADMIN')] }, async (req, reply) => {
     const body = z.object({
       churchId: z.string().uuid(),
       title: z.string().min(2),
       description: z.string().optional(),
-      images: z.array(z.string()).default([])
+      images: z.array(z.string()).max(10, "Maximum 10 images").default([])
     }).parse(req.body);
 
     const now = new Date();
@@ -39,7 +39,7 @@ export async function albumRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // PUT : Modifier un album (Admin)
-  app.put('/albums/:id', { preHandler: [app.authorize('ADMIN')] }, async (req, reply) => {
+  app.put('/albums/:id', { bodyLimit: 52428800, preHandler: [app.authorize('ADMIN')] }, async (req, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
     const body = z.object({
       title: z.string().min(2).optional(),

@@ -65,6 +65,9 @@
 </script>
 
 <div class="bg-slate-50 min-h-screen flex flex-col">
+  
+  
+
   <Hero imageUrl={coverImageUrl} />
   <Features />
 
@@ -100,7 +103,7 @@
       </div>
     {/if}
 
-    <!-- SECTION FORMULAIRES D'ENQUETE (RÉINTÉGRÉE) -->
+    <!-- SECTION FORMULAIRES D'ENQUETE -->
     {#if forms.length > 0}
       <div>
         <div class="mb-6">

@@ -61,13 +61,13 @@
   <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent"></div>
   
   <div class="relative z-10 text-white">
-    <h1 class="text-2xl md:text-3xl font-bold">Tableau de bord 👋</h1>
+    <h1 class="text-2xl md:text-xl md:text-3xl font-bold">Tableau de bord 👋</h1>
     <p class="text-slate-200 text-sm md:text-base mt-1">Bienvenue sur votre espace d'administration, que la grâce de Dieu soit avec vous !</p>
   </div>
 </div>
 
 <!-- KPIs (Valeurs Réelles) -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
   <StatCard title="Membres inscrits" value={loading ? "..." : String(stats?.members || 0)} trend="+0%" color="blue" icon="users" />
   <StatCard title="Événements publiés" value={loading ? "..." : String(stats?.events || 0)} trend="+0%" color="green" icon="calendar" />
   <StatCard title="Sondages actifs" value={loading ? "..." : String(stats?.polls || 0)} trend="+0%" color="purple" icon="poll" />
@@ -75,13 +75,13 @@
 </div>
 
 <!-- Grille principale -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
   
   <!-- Colonne de gauche (2/3) -->
   <div class="lg:col-span-2 space-y-6">
     
     <!-- Activité & Graphique -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       <RecentActivity logs={stats?.recentLogs || []} />
       
       <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 h-full flex flex-col">
@@ -161,7 +161,7 @@
         <svg class="text-amber-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-2 10h3L11 22l2-10h-3L13 2z"></path></svg>
         Actions rapides
       </h3>
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-2 gap-2 md:gap-3">
         <a href="/events" class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition text-center gap-2">
           <svg class="text-blue-500" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>
           <span class="text-xs font-semibold text-slate-700 leading-tight">Créer un événement</span>
