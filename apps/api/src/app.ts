@@ -39,7 +39,20 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
   
   await app.register(helmet, { contentSecurityPolicy: false });
-  await app.register(cors, { origin: env.FRONTEND_URL, credentials: true });
+  await app.register(cors, {
+  origin: (origin, cb) => {
+    // On nettoie l'URL configurée (supprime le slash final s'il existe)
+    const allowedOrigin = env.FRONTEND_URL.replace(/\/$/, '');
+    
+    // Si l'origine correspond (ou si c'est une requête sans origine)
+    if (!origin || origin === allowedOrigin) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true
+});
   await app.register(rateLimit, { max: 1000, timeWindow: '1 minute' });
   await app.register(authPlugin);
 
