@@ -1,3 +1,4 @@
+import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from './client';
 import type { Member } from './types';
 
@@ -37,7 +38,7 @@ export function assignSkill(memberId: string, skillId: string, token: string): P
 }
 
 export function exportMembers(churchId: string, token: string): Promise<Blob> {
-  return fetch('http://localhost:3000/api/members/export?churchId=' + churchId, {
+  return fetch(`${PUBLIC_API_URL}/members/export?churchId=` + churchId, {
     headers: { Authorization: 'Bearer ' + token }
   }).then(res => res.blob());
 }

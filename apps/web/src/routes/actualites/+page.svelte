@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PUBLIC_API_URL } from '$env/static/public';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import { listPublicPublications } from '$lib/api/publications';
@@ -13,7 +14,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/church/default', { cache: 'no-store' });
+      const res = await fetch(`${PUBLIC_API_URL}/church/default`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Impossible de charger les informations.');
       const church = await res.json();
 
