@@ -28,6 +28,7 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
-    "@churchtask/contracts": "workspace:*"
+    "@churchtask/contracts": "workspace:*",
+    "@vercel/analytics": "^2.0.1"
   }
 }

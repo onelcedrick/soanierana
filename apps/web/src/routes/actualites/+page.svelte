@@ -31,6 +31,35 @@
       loading = false;
     }
   });
+
+  // --- LOGIQUE DE REGROUPEMENT PAR SEMAINE ---
+  function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Lundi
+    return new Date(d.setDate(diff));
+  }
+
+  function addDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  $: groupedPublications = publications.reduce((acc, pub) => {
+    const date = new Date(pub.publishedAt || Date.now());
+    const startOfWeek = getStartOfWeek(date);
+    const weekKey = startOfWeek.toISOString().split('T')[0];
+    
+    if (!acc[weekKey]) {
+      acc[weekKey] = { startDate: startOfWeek, items: [] };
+    }
+    acc[weekKey].items.push(pub);
+    return acc;
+  }, {});
+
+  $: sortedGroups = Object.values(groupedPublications).sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+
 </script>
 
 <svelte:head>
@@ -50,36 +79,51 @@
     </div>
 
     {#if loading}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-      </div>
-    {:else if error}
-      <div class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center">
-        {error}
-      </div>
-    {:else if publications.length === 0}
-      <div class="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-500">
-        Aucune actualité n'a été publiée pour le moment.
-      </div>
-    {:else}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-start">
-        {#each publications as pub, i}
-      <div class="relative group h-full">
-        <div class="absolute bottom-4 right-4 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
-          <ShareButton url={`${typeof window !== 'undefined' ? window.location.origin : ''}/actualites`} title={pub.title} />
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
+    <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
+    <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
+  </div>
+{:else if publications.length === 0}
+  <div class="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-500">
+    Aucune actualité n'a été publiée pour le moment.
+  </div>
+{:else}
+  <div class="space-y-12">
+    {#each sortedGroups as group}
+      <div class="bg-slate-50/50 rounded-3xl p-4 md:p-6 border border-slate-100 shadow-sm">
+        <!-- En-tête de la semaine -->
+        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200">
+          <div class="w-2 h-8 bg-brand-500 rounded-full"></div>
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">
+              Semaine du {group.startDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} 
+              au {addDays(group.startDate, 6).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </h2>
+            <p class="text-xs text-slate-500 font-medium mt-1">{group.items.length} publication(s)</p>
+          </div>
         </div>
-        <NewsCard 
-          title={pub.title} 
-          date={new Date(pub.publishedAt || Date.now()).toLocaleDateString('fr-FR')} 
-          excerpt={pub.content} 
-          image={pub.coverImageUrl} 
-        />
+        
+        <!-- Grille de la semaine -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-start">
+          {#each group.items as pub, i}
+            <div in:fly={{ y: 20, duration: 400, delay: i * 100 }} class="relative group h-full">
+              <div class="absolute bottom-4 right-4 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+                <ShareButton url={`${typeof window !== 'undefined' ? window.location.origin : ''}/actualites`} title={pub.title} />
+              </div>
+              <NewsCard 
+                title={pub.title} 
+                date={new Date(pub.publishedAt || Date.now()).toLocaleDateString('fr-FR')} 
+                excerpt={pub.content} 
+                image={pub.coverImageUrl} 
+              />
+            </div>
+          {/each}
+        </div>
       </div>
     {/each}
-      </div>
-    {/if}
+  </div>
+{/if}
   </main>
 
   <Footer />
