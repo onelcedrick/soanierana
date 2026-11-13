@@ -16,3 +16,4 @@ export * from './site-settings.table';
 export * from './audit-log.table';
 export * from './message.table';
 export * from './campaign.table';
+export * from './album.table';
