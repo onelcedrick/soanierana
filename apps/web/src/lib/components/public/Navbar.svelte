@@ -17,7 +17,7 @@
   let showLoginModal = false;
 
   let logoUrl = '';
-  let churchName = 'ChurchTask';
+  let churchName = 'Eglise Adventiste';
   let scrolled = false;
 
   onMount(async () => {
@@ -64,7 +64,7 @@
           <img src={logoUrl} alt="Logo" class="w-10 h-10 object-contain rounded-full bg-white p-0.5" />
         {:else}
           <div class="w-10 h-10 bg-brand-600 rounded-full flex items-center justify-center text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 9h18L12 2z"></path><path d="M5 9v11h14V9"></path><path d="M9 22V12h6v10"></path><path d="M12 12v10"></path></svg>
           </div>
         {/if}
         <div class="font-bold text-base md:text-xl leading-tight max-w-[150px] md:max-w-[200px] truncate">

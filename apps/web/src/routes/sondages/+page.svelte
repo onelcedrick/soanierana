@@ -69,7 +69,7 @@
 </script>
 
 <svelte:head>
-  <title>Sondages - ChurchTask</title>
+  <title>Sondages - SDA Soanierana</title>
 </svelte:head>
 
 <div class="bg-slate-50 min-h-screen flex flex-col">
