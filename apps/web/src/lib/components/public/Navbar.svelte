@@ -2,7 +2,7 @@
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  import { browser } from '$app/environment';
+  import { donationBell } from '$lib/stores/donationBell'; // Import du nouveau store
   import ProfileModal from './ProfileModal.svelte';
   import MessageModal from './MessageModal.svelte';
   import LoginModal from './LoginModal.svelte';
@@ -19,23 +19,7 @@
   let churchName = 'ChurchTask';
   let scrolled = false;
 
-  // Gestion de la visibilité de la cloche (PC, Tablette et Mobile)
-  let isBellVisible = true;
-
   onMount(async () => {
-    if (browser) {
-      // 1. Détecter si c'est un rechargement de page (F5) pour réafficher la cloche
-      const isReload = window.performance.getEntriesByType("navigation")[0]?.type === "reload";
-      if (isReload) {
-        sessionStorage.removeItem('hide_donation_bell');
-      }
-
-      // 2. Vérifier si la cloche a été cliquée précédemment dans cette session
-      if (sessionStorage.getItem('hide_donation_bell') === 'true') {
-        isBellVisible = false;
-      }
-    }
-
     const handleScroll = () => {
       scrolled = window.scrollY > 20;
     };
@@ -56,14 +40,6 @@
     return () => window.removeEventListener('scroll', handleScroll);
   });
 
-  // Fonction appelée quand on clique sur la cloche (sur n'importe quel appareil)
-  function handleBellClick() {
-    isBellVisible = false;
-    if (browser) {
-      sessionStorage.setItem('hide_donation_bell', 'true');
-    }
-  }
-
   function logout() {
     auth.logout();
     goto('/');
@@ -80,7 +56,7 @@
 <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {scrolled || !transparent || showMobileMenu ? 'bg-slate-900 text-white shadow-md' : 'bg-transparent text-white'}">
   <div class="max-w-6xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between relative z-50">
     
-    <!-- Logo, Nom et Cloche (Visible sur tous les appareils) -->
+    <!-- Logo, Nom et Cloche -->
     <div class="flex items-center gap-3">
       <a href="/" class="flex items-center gap-2 md:gap-3" on:click={() => showMobileMenu = false}>
         {#if logoUrl}
@@ -95,16 +71,15 @@
         </div>
       </a>
 
-      <!-- PETITE CLOCHE ANIMÉE (S'affiche tant qu'elle n'a pas été cliquée) -->
-      {#if isBellVisible}
-        <a href="/notre-eglise" on:click={handleBellClick} class="relative p-2 bg-white/10 hover:bg-brand-500 rounded-full transition-colors group cursor-pointer" title="Faire un don pour la reconstruction">
+      <!-- CLOCHE ANIMÉE -->
+      {#if $donationBell}
+        <a href="/notre-eglise" on:click={() => donationBell.hide()} class="relative p-2 bg-white/10 hover:bg-brand-500 rounded-full transition-colors group cursor-pointer" title="Faire un don pour la reconstruction">
           <div class="animate-bell">
             <svg class="text-brand-400 group-hover:text-white transition-colors" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
               <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
             </svg>
           </div>
-          <!-- Point rouge clignotant -->
           <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border border-slate-900"></span>
