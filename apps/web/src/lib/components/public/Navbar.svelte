@@ -100,7 +100,7 @@
     </div>
 
     <!-- Zone de connexion / Profil / Menu Mobile -->
-    <div class="flex items-center gap-2 md:gap-4">
+    <div class="flex items-center gap-1 sm:gap-4">
       
       {#if $auth.token}
         <div class="relative" on:click|stopPropagation={() => {}}>
@@ -140,10 +140,9 @@
         </div>
       {:else}
         <div class="relative" on:click|stopPropagation={() => {}}>
-          <button on:click={() => { showLoginModal = true; showMobileMenu = false; }} class="bg-white text-slate-900 px-4 py-2 md:px-6 md:py-2.5 rounded-full font-medium text-xs md:text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <button on:click={() => { showLoginModal = true; showMobileMenu = false; }} class="bg-white text-slate-900 p-2.5 sm:px-6 sm:py-2.5 rounded-full font-medium text-xs md:text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span class="hidden sm:inline">Se connecter</span>
-            <span class="sm:hidden">Connexion</span>
           </button>
           
           <LoginModal bind:show={showLoginModal} onClose={() => showLoginModal = false} />
@@ -151,7 +150,7 @@
       {/if}
 
       <!-- Bouton Hamburger (Mobile) -->
-      <button on:click={() => { showMobileMenu = !showMobileMenu; showDropdown = false; }} class="md:hidden text-white p-2 -mr-2 relative z-50">
+      <button on:click={() => { showMobileMenu = !showMobileMenu; showDropdown = false; }} class="md:hidden text-white p-2 -mr-2 relative z-50 shrink-0">
         {#if showMobileMenu}
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
         {:else}
