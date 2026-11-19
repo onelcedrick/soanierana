@@ -84,11 +84,25 @@
   async function handleProofUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
+
+    // Vérification de sécurité pour mobile
+    if (!(file instanceof File)) {
+      donateStatus.error = "Le fichier sélectionné n'est pas valide.";
+      return;
+    }
+
+    // Vérification de la taille (max 10 Mo)
+    if (file.size > 10 * 1024 * 1024) {
+      donateStatus.error = "L'image est trop lourde (maximum 10 Mo). Veuillez choisir une autre photo.";
+      return;
+    }
+
     try {
       donateForm.proofImageUrl = await uploadToCloudinary(file, 'donations_proofs');
+      donateStatus.error = ''; // Effacer l'erreur en cas de succès
     } catch (err) {
       console.error(err);
-      donateStatus.error = "Erreur lors de l'upload de la preuve.";
+      donateStatus.error = "Erreur lors de l'upload de la preuve. Vérifiez votre connexion.";
     }
   }
 
@@ -427,7 +441,7 @@
 
               <div>
                 <label class="block text-xs text-slate-500 mb-1">Capture d'écran (Optionnel)</label>
-                <input type="file" accept="image/*" on:change={handleProofUpload} class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
+                <input type="file" accept="image/*" capture="environment" on:change={handleProofUpload} class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
                 {#if donateForm.proofImageUrl}
                   <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
                 {/if}
