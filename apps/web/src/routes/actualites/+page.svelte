@@ -1,44 +1,22 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
-  import { listPublicPublications } from '$lib/api/publications';
   import NewsCard from '$lib/components/public/NewsCard.svelte';
   import Navbar from '$lib/components/public/Navbar.svelte';
   import Footer from '$lib/components/public/Footer.svelte';
   import ShareButton from '$lib/components/ui/ShareButton.svelte';
-  import { API_ROOT_URL } from '$lib/api/config';
   import type { Publication } from '$lib/api/types';
 
-  let publications: Publication[] = [];
-  let loading = true;
-  let error = '';
-
-  onMount(async () => {
-    try {
-      const res = await fetch(`${API_ROOT_URL}/api/church/default`);
-      if (!res.ok) throw new Error('Impossible de charger les informations.');
-      const church = await res.json();
-
-      const pubs = await listPublicPublications(church.id);
-      publications = pubs.sort((a, b) => {
-        const dateA = new Date(a.publishedAt || 0).getTime();
-        const dateB = new Date(b.publishedAt || 0).getTime();
-        return dateB - dateA;
-      });
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Erreur de connexion.';
-    } finally {
-      loading = false;
-    }
-  });
+  // 👇 LA MAGIE DU SSR : On reçoit les données directement du serveur (page.server.ts)
+  export let data;
+  
+  $: publications = data.publications || [];
 
   // --- LOGIQUE DE REGROUPEMENT PAR SEMAINE (Dimanche à Samedi) ---
   function getStartOfWeek(date: Date) {
     const d = new Date(date);
-    // On remet l'heure à 00:00 pour éviter les décalages de fuseau horaire
     d.setHours(0, 0, 0, 0); 
-    const day = d.getDay(); // 0 = Dimanche, 1 = Lundi, ..., 6 = Samedi
-    const diff = d.getDate() - day; // On recule jusqu'au Dimanche
+    const day = d.getDay(); // 0 = Dimanche
+    const diff = d.getDate() - day; 
     return new Date(d.setDate(diff));
   }
 
@@ -48,7 +26,7 @@
     return result;
   }
 
-  $: groupedPublications = publications.reduce((acc, pub) => {
+  $: groupedPublications = publications.reduce((acc: any, pub: any) => {
     const date = new Date(pub.publishedAt || Date.now());
     const startOfWeek = getStartOfWeek(date);
     const weekKey = startOfWeek.toISOString().split('T')[0];
@@ -58,13 +36,13 @@
     }
     acc[weekKey].items.push(pub);
     return acc;
-  }, {} as Record<string, { startDate: Date, items: Publication[] }>);
+  }, {});
 
-  $: sortedGroups = Object.values(groupedPublications).sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+  $: sortedGroups = Object.values(groupedPublications).sort((a: any, b: any) => b.startDate.getTime() - a.startDate.getTime());
 </script>
 
 <svelte:head>
-  <title>Actualités - ChurchTask</title>
+  <title>Actualités - Eglise Adventiste</title>
 </svelte:head>
 
 <div class="bg-slate-50 min-h-screen flex flex-col">
@@ -78,17 +56,7 @@
       <p class="text-slate-600 mt-2">Retrouvez les dernières nouvelles de notre église.</p>
     </div>
 
-    {#if loading}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-        <div class="h-80 bg-slate-200 animate-pulse rounded-xl"></div>
-      </div>
-    {:else if error}
-      <div class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center">
-        {error}
-      </div>
-    {:else if publications.length === 0}
+    {#if publications.length === 0}
       <div class="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-500">
         Aucune actualité n'a été publiée pour le moment.
       </div>
