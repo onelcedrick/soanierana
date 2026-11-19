@@ -7,6 +7,7 @@ import { loggerOptions } from './shared/logger';
 import { registerErrorHandler } from './shared/error-handler';
 import { registerNotFoundHandler } from './shared/not-found-handler';
 import { healthRoutes } from './modules/health/health.route';
+import { cloudinaryRoutes } from './presentation/routes/cloudinary.routes';
 import { churchRoutes } from './presentation/routes/church.routes';
 import { memberRoutes } from './presentation/routes/member.routes';
 import { authRoutes } from './presentation/routes/auth.routes';
@@ -62,6 +63,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   const c = buildContainer();
   await app.register(auditPlugin, { container: c });
   await app.register(healthRoutes, { prefix: '/api' });
+  await app.register(cloudinaryRoutes, { prefix: '/api' });
   await app.register(authRoutes, { prefix: '/api', container: c });
   await app.register(churchRoutes, { prefix: '/api', container: c });
   await app.register(memberRoutes, { prefix: '/api', container: c });
