@@ -10,6 +10,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import { claimAssignment } from '$lib/api/programs';
 
   let programs: Program[] = [];
   let loading = true;
@@ -180,6 +181,24 @@
       newTask.allowedStatuses = [...newTask.allowedStatuses, status];
     }
   }
+
+  let claimingId: string | null = null;
+  let claimMessage = '';
+
+  async function onClaimTask(assignmentId: string) {
+    claimingId = assignmentId;
+    claimMessage = '';
+    try {
+      await claimAssignment(assignmentId, $auth.token!);
+      claimMessage = "✅ Vous avez réservé cette tâche avec succès !";
+      await load(); // Recharge la liste pour voir le nouveau statut
+    } catch (err: any) {
+      claimMessage = err.message || "❌ Cette tâche vient d'être prise par quelqu'un d'autre.";
+    } finally {
+      claimingId = null;
+    }
+  }
+  
 </script>
 
 <div class="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-10">
@@ -416,9 +435,18 @@
                   <tr class="hover:bg-slate-50/50 transition">
                     <td class="px-5 py-3 font-bold text-slate-800">{a.task}</td>
                     <td class="px-5 py-3 text-slate-600 font-medium">{a.member}</td>
-                    <td class="px-5 py-3">
-                      <span class="text-[10px] font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded-md uppercase tracking-wide">{a.status}</span>
-                    </td>
+                    
+    <td class="px-5 py-3">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded-md uppercase tracking-wide">{a.status}</span>
+        {#if a.status === 'PROPOSED'}
+          <button on:click={() => onClaimTask(a.id)} disabled={claimingId === a.id} class="bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-brand-500 transition disabled:opacity-50">
+            {claimingId === a.id ? 'Réservation...' : 'Prendre en charge'}
+          </button>
+        {/if}
+      </div>
+    </td>
+  
                   </tr>
                 {/each}
               </tbody>

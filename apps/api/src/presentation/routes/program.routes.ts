@@ -68,4 +68,38 @@ export async function programRoutes(app: FastifyInstance, opts: { container: Con
       return reply.status(500).send({ error: 'Erreur lors de la publication' });
     }
   });
+
+  // 🚀 ROUTE DE RÉSERVATION ATOMIQUE (FIFO)
+  app.post('/assignments/:id/claim', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const userId = req.currentUser!.sub;
+
+    try {
+      // Requête SQL brute pour garantir l'atomicité (SKIP LOCKED)
+      const result = await app.db.execute(sql`
+        UPDATE assignments
+        SET status = 'PROCESSING',
+            claimed_by = ${userId},
+            claimed_at = NOW()
+        WHERE id = (
+          SELECT id FROM assignments
+          WHERE id = ${id} AND status = 'PROPOSED'
+          FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *;
+      `);
+
+      if (result.rowCount === 0) {
+        return reply.status(409).send({ 
+          error: "Cette tâche a déjà été prise par quelqu'un d'autre ou n'est plus disponible." 
+        });
+      }
+
+      return reply.send({ success: true, assignment: result.rows[0] });
+    } catch (err) {
+      req.log.error(err);
+      return reply.status(500).send({ error: "Erreur lors de la réservation." });
+    }
+  });
+  
 }

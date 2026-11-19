@@ -50,3 +50,8 @@ export function getSessionAssignments(sessionId: string, token: string): Promise
 export function publishSession(sessionId: string, token: string): Promise<void> {
   return apiFetch(`/program-sessions/${sessionId}/publish`, { method: 'POST', token });
 }
+
+// 🚀 Fonction pour réserver une tâche de manière atomique
+export function claimAssignment(assignmentId: string, token: string): Promise<any> {
+  return apiFetch(`/assignments/${assignmentId}/claim`, { method: 'POST', token });
+}
