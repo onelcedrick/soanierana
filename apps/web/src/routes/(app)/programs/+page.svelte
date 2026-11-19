@@ -212,20 +212,20 @@
       </h2>
       <form on:submit={onCreateProgram} class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Nom du programme</label>
-          <input bind:value={newProgram.name} required placeholder="Ex: Culte du Mercredi" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm md:text-base transition" />
+          <label for="program-name" class="block text-sm font-medium text-slate-700 mb-1.5">Nom du programme</label>
+          <input id="program-name" bind:value={newProgram.name} required placeholder="Ex: Culte du Mercredi" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm md:text-base transition" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Fréquence</label>
-            <select bind:value={newProgram.frequency} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
+            <label for="program-frequency" class="block text-sm font-medium text-slate-700 mb-1.5">Fréquence</label>
+            <select id="program-frequency" bind:value={newProgram.frequency} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
               <option value="WEEKLY">Hebdomadaire</option>
               <option value="BIWEEKLY">Bimensuel</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1.5">Jour</label>
-            <select bind:value={newProgram.dayOfWeek} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
+            <label for="program-day" class="block text-sm font-medium text-slate-700 mb-1.5">Jour</label>
+            <select id="program-day" bind:value={newProgram.dayOfWeek} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50 text-sm md:text-base cursor-pointer">
               <option value={0}>Dimanche</option>
               <option value={1}>Lundi</option>
               <option value={2}>Mardi</option>
@@ -292,18 +292,18 @@
         {#if showTaskForm}
           <form on:submit={onSubmitTask} class="bg-brand-50/50 p-4 rounded-xl border border-brand-100 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1.5">Nom de la tâche</label>
-              <input bind:value={newTask.name} required placeholder="Ex: Nettoyage" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 text-sm md:text-base transition" />
+              <label for="task-name" class="block text-sm font-medium text-slate-700 mb-1.5">Nom de la tâche</label>
+              <input id="task-name" bind:value={newTask.name} required placeholder="Ex: Nettoyage" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 text-sm md:text-base transition" />
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Personnes requises</label>
-                <input type="number" bind:value={newTask.requiredPeople} min="1" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 text-sm md:text-base transition" />
+                <label for="task-people" class="block text-sm font-medium text-slate-700 mb-1.5">Personnes requises</label>
+                <input id="task-people" type="number" bind:value={newTask.requiredPeople} min="1" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 text-sm md:text-base transition" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1.5">Grade minimum</label>
-                <select bind:value={newTask.minimumGrade} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base cursor-pointer">
+                <label for="task-grade" class="block text-sm font-medium text-slate-700 mb-1.5">Grade minimum</label>
+                <select id="task-grade" bind:value={newTask.minimumGrade} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base cursor-pointer">
                   <option value="">Aucun grade requis</option>
                   <option value="DIAKONA">Diacre</option>
                   <option value="LOHOLONA">Loholona</option>
@@ -353,16 +353,16 @@
     
     <form on:submit={onGenerateAssignments} class="flex flex-col md:flex-row gap-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-100">
       <div class="flex-1 w-full">
-        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Programme</label>
-        <select bind:value={selectedProgramForGen} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base cursor-pointer">
+        <label for="gen-program" class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Programme</label>
+        <select id="gen-program" bind:value={selectedProgramForGen} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base cursor-pointer">
           {#each programs as p}
             <option value={p.id}>{p.name}</option>
           {/each}
         </select>
       </div>
       <div class="flex-1 w-full">
-        <label class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Date de la session</label>
-        <input type="date" bind:value={sessionDate} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base" />
+        <label for="gen-date" class="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wide">Date de la session</label>
+        <input id="gen-date" type="date" bind:value={sessionDate} class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 bg-white text-sm md:text-base" />
       </div>
       <button type="submit" disabled={generating || programs.length === 0} class="w-full md:w-auto bg-brand-600 text-white font-bold px-8 py-2.5 rounded-xl hover:bg-brand-500 transition disabled:opacity-50 shadow-sm flex justify-center items-center gap-2">
         {#if generating}
