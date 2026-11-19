@@ -98,7 +98,15 @@
     }
 
     try {
-      donateForm.proofImageUrl = await uploadToCloudinary(file, 'donations_proofs');
+      // 🚨 CORRECTION MOBILE : On force le type MIME et le nom du fichier
+      // Certains navigateurs mobiles (Android) renvoient un type vide ou bizarre
+      // qui fait échouer Cloudinary. On le corrige avant l'envoi.
+      const correctedFile = new File([file], 'preuve.jpg', { 
+        type: 'image/jpeg', 
+        lastModified: Date.now() 
+      });
+
+      donateForm.proofImageUrl = await uploadToCloudinary(correctedFile, 'donations_proofs');
       donateStatus.error = ''; // Effacer l'erreur en cas de succès
     } catch (err) {
       console.error(err);
