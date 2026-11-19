@@ -84,40 +84,11 @@
   async function handleProofUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-
-    // Vérification de la taille (max 10 Mo)
-    if (file.size > 10 * 1024 * 1024) {
-      donateStatus.error = "L'image est trop lourde (maximum 10 Mo).";
-      return;
-    }
-
     try {
-      // 🚨 CONVERSION EN JPEG VIA CANVAS
-      // Cela garantit un format supporté par Cloudinary, même si le téléphone
-      // a pris la photo en HEIC ou avec un type MIME bizarre.
-      const imageBitmap = await createImageBitmap(file);
-      const canvas = document.createElement('canvas');
-      canvas.width = imageBitmap.width;
-      canvas.height = imageBitmap.height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(imageBitmap, 0, 0);
-
-      // On convertit en Blob JPEG (qualité 0.85 pour un bon compromis)
-      const jpegBlob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob(resolve, 'image/jpeg', 0.85);
-      });
-
-      if (!jpegBlob) throw new Error("Impossible de convertir l'image.");
-
-      // On crée un nouveau fichier avec un nom et un type corrects
-      const correctedFile = new File([jpegBlob], 'preuve.jpg', { type: 'image/jpeg' });
-
-      // On envoie le fichier corrigé à Cloudinary
-      donateForm.proofImageUrl = await uploadToCloudinary(correctedFile, 'donations_proofs');
-      donateStatus.error = ''; // Effacer l'erreur en cas de succès
+      donateForm.proofImageUrl = await uploadToCloudinary(file, 'donations_proofs');
     } catch (err) {
-      console.error("Erreur détaillée:", err);
-      donateStatus.error = "Erreur lors du traitement de l'image. Veuillez réessayer.";
+      console.error(err);
+      donateStatus.error = "Erreur lors de l'upload de l'image.";
     }
   }
 
@@ -455,24 +426,12 @@
               </div>
 
               <div>
-                <label class="block text-xs text-slate-500 mb-1">Preuve de paiement</label>
-                
-                <!-- Boutons séparés pour mobile et PC -->
-                <div class="flex gap-2">
-                  <!-- Bouton Appareil Photo -->
-                  <label class="flex-1 bg-brand-50 text-brand-700 text-center py-2.5 rounded-lg cursor-pointer hover:bg-brand-100 transition text-sm font-bold border border-brand-100 flex items-center justify-center gap-1.5">
-                    <input type="file" accept="image/*" capture="environment" on:change={handleProofUpload} class="hidden" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg>
-                    Caméra
-                  </label>
-                  
-                  <!-- Bouton Galerie / Fichier -->
-                  <label class="flex-1 bg-slate-100 text-slate-700 text-center py-2.5 rounded-lg cursor-pointer hover:bg-slate-200 transition text-sm font-bold border border-slate-200 flex items-center justify-center gap-1.5">
-                    <input type="file" accept="image/*" on:change={handleProofUpload} class="hidden" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    Galerie
-                  </label>
-                </div>
+                <label class="block text-xs text-slate-500 mb-1">Capture d'écran (Optionnel)</label>
+                <input type="file" accept="image/*" on:change={handleProofUpload} class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
+                {#if donateForm.proofImageUrl}
+                  <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
+                {/if}
+              </div>
 
                 {#if donateForm.proofImageUrl}
                   <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
