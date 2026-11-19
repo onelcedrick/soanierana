@@ -6,6 +6,10 @@ export async function uploadToCloudinary(file: File, folder: string = 'church_ap
   const token = get(auth).token;
   if (!token) throw new Error("Utilisateur non connecté");
 
+  // 🚨 CORRECTION MOBILE : On force le type MIME en image/jpeg
+  // Certains navigateurs Android envoient un type MIME vide ou incorrect.
+  const safeFile = new File([file], file.name || 'photo.jpg', { type: 'image/jpeg' });
+
   // 1. Signature
   const signRes = await fetch(`${PUBLIC_API_URL}/cloudinary/sign`, {
     method: 'POST',
@@ -21,7 +25,7 @@ export async function uploadToCloudinary(file: File, folder: string = 'church_ap
 
   // 2. Envoi
   const formData = new FormData();
-  formData.append('file', file); // 👈 Fichier brut, exactement comme les actualités
+  formData.append('file', safeFile); // On envoie le fichier "habillé"
   formData.append('api_key', apiKey);
   formData.append('timestamp', timestamp.toString());
   formData.append('signature', signature);
@@ -32,7 +36,11 @@ export async function uploadToCloudinary(file: File, folder: string = 'church_ap
     body: formData
   });
   
-  if (!uploadRes.ok) throw new Error('Erreur lors de l\'upload sur Cloudinary');
+  if (!uploadRes.ok) {
+    // On affiche la vraie erreur de Cloudinary si ça plante
+    const errData = await uploadRes.json().catch(() => ({}));
+    throw new Error(errData.error?.message || 'Erreur lors de l\'upload sur Cloudinary');
+  }
   
   const data = await uploadRes.json();
   return data.secure_url;
