@@ -37,12 +37,6 @@
     {:else}
       <div class="text-amber-500">
         <!-- NOUVELLE ICÔNE ÉGLISE -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 9h4"></path>
-          <path d="M12 7v4"></path>
-          <path d="M4 21v-8l8-6 8 6v8"></path>
-          <path d="M8 21v-4a4 4 0 0 1 8 0v4"></path>
-        </svg>
       </div>
     {/if}
     <div class="leading-tight overflow-hidden">
