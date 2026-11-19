@@ -7,6 +7,7 @@ export interface AdminMember {
   lastName: string;
   email: string;
   phone: string;
+  photoUrl?: string | null;
   membershipStatus: string;
   responsibilityLevel: string;
   isActive: boolean;
@@ -32,19 +33,13 @@ export function createMemberAccount(memberId: string, password: string, token: s
   return apiFetch(`/members/${memberId}/create-account`, { method: 'POST', body: { password }, token });
 }
 
-export async function exportMembers(churchId: string, token: string): Promise<Blob> {
-  // (Ton code d'export existant)
-  const res = await fetch(`/api/members/export?churchId=${churchId}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.blob();
-}
-
-// --- FONCTIONS AJOUTÉES POUR LE PROFIL MEMBRE ---
 export function getMyProfile(token: string): Promise<AdminMember> {
   return apiFetch('/members/me', { token });
 }
 
-export function getMemberProfile(memberId: string, token: string): Promise<AdminMember> {
-  return apiFetch(`/members/${memberId}`, { token });
+export async function exportMembers(churchId: string, token: string): Promise<Blob> {
+  const res = await fetch(`http://localhost:3000/api/members/export?churchId=${churchId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.blob();
 }

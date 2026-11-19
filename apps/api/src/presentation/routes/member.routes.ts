@@ -1,23 +1,19 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '../../infrastructure/database/client';
 import { members } from '../../infrastructure/database/schema/member.table';
 import { randomUUID } from 'node:crypto';
 
-// Le compte super admin autorisé à modifier/supprimer
 const SUPER_ADMIN_EMAIL = 'admin@soanierana.com';
 
 export async function memberRoutes(app: FastifyInstance): Promise<void> {
-  
-  // GET : Lister les membres
   app.get('/members', async (req, reply) => {
     const q = z.object({ churchId: z.string().uuid() }).parse(req.query);
     const list = await db.select().from(members).where(eq(members.churchId, q.churchId));
     return reply.send(list);
   });
 
-  // POST : Ajouter un membre
   app.post('/members', { preHandler: [app.authenticate] }, async (req, reply) => {
     const body = z.object({
       churchId: z.string().uuid(),
@@ -25,6 +21,7 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
       lastName: z.string().min(1),
       email: z.string().email(),
       phone: z.string(),
+      photoUrl: z.string().optional().nullable(),
       membershipStatus: z.string(),
       responsibilityLevel: z.string(),
     }).parse(req.body);
@@ -39,6 +36,7 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
       lastName: body.lastName,
       email: body.email,
       phone: body.phone,
+      photoUrl: body.photoUrl || null,
       membershipStatus: body.membershipStatus,
       responsibilityLevel: body.responsibilityLevel,
       isActive: true,
@@ -49,12 +47,9 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
     return reply.status(201).send({ id });
   });
 
-  // PUT : Modifier un membre (Réservé au Super Admin)
   app.put('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
     const user = req.currentUser;
-    
-    // 🚨 VÉRIFICATION STRICTE : Seul admin@soanierana.com peut modifier
-    if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+    if (!user || user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
       return reply.status(403).send({ error: "Seul le super administrateur peut modifier un membre." });
     }
 
@@ -64,6 +59,7 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
       lastName: z.string().min(1).optional(),
       email: z.string().email().optional(),
       phone: z.string().optional(),
+      photoUrl: z.string().optional().nullable(),
       membershipStatus: z.string().optional(),
       responsibilityLevel: z.string().optional(),
     }).parse(req.body);
@@ -72,12 +68,9 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ success: true });
   });
 
-  // DELETE : Supprimer un membre (Réservé au Super Admin)
   app.delete('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
     const user = req.currentUser;
-    
-    // 🚨 VÉRIFICATION STRICTE
-    if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+    if (!user || user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
       return reply.status(403).send({ error: "Seul le super administrateur peut supprimer un membre." });
     }
 
