@@ -6,6 +6,7 @@
   import Footer from '$lib/components/public/Footer.svelte';
   import { getActiveCampaign, donate } from "$lib/api/campaigns";
   import { listAlbums, type Album } from "$lib/api/albums";
+  import { uploadToCloudinary } from '$lib/utils/upload';
 
   let data: any = null;
   let albums: Album[] = [];
