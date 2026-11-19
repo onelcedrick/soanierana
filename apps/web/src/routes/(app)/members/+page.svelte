@@ -26,7 +26,7 @@
   let editForm = { firstName: '', lastName: '', email: '', phone: '', photoUrl: '', membershipStatus: '', responsibilityLevel: '' };
 
   // 🔐 Vérification Super Admin (rendue plus robuste)
-  $: isSuperAdmin = $auth.user?.email?.toLowerCase() === 'admin@soanierana.com';
+  $: canManageMembers = $auth.user?.email?.toLowerCase() === 'admin@soanierana.com' || $auth.user?.role === 'RESPONSABLE' || $auth.user?.role === 'ADMIN';
   
   // DEBUG : Affiche le contenu de l'utilisateur dans la console (F12)
   $: if ($auth.user) console.log("Utilisateur connecté :", $auth.user);
@@ -256,7 +256,7 @@
           </button>
 
           <!-- Boutons SUPER ADMIN -->
-          {#if isSuperAdmin}
+          {#if canManageMembers}
             <button on:click={() => startEdit(member)} class="flex-1 sm:flex-none bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-xl py-2 px-4 font-bold text-xs transition border border-blue-100">Modifier</button>
             <button on:click={() => onDelete(member)} class="flex-1 sm:flex-none bg-red-50 text-red-600 hover:bg-red-100 rounded-xl py-2 px-4 font-bold text-xs transition border border-red-100">Supprimer</button>
           {/if}

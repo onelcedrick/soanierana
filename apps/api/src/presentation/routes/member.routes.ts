@@ -49,8 +49,8 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
 
   app.put('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
     const user = req.currentUser;
-    if (!user || user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
-      return reply.status(403).send({ error: "Seul le super administrateur peut modifier un membre." });
+    if (!user || (user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL && user.role !== 'RESPONSABLE' && user.role !== 'ADMIN')) {
+      return reply.status(403).send({ error: "Seuls les administrateurs et responsables peuvent modifier un membre." });
     }
 
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
@@ -70,8 +70,8 @@ export async function memberRoutes(app: FastifyInstance): Promise<void> {
 
   app.delete('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
     const user = req.currentUser;
-    if (!user || user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL) {
-      return reply.status(403).send({ error: "Seul le super administrateur peut supprimer un membre." });
+    if (!user || (user.email?.toLowerCase() !== SUPER_ADMIN_EMAIL && user.role !== 'RESPONSABLE' && user.role !== 'ADMIN')) {
+      return reply.status(403).send({ error: "Seuls les administrateurs et responsables peuvent supprimer un membre." });
     }
 
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
