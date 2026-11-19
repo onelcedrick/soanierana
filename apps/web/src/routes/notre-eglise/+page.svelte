@@ -432,11 +432,6 @@
                   <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
                 {/if}
               </div>
-
-                {#if donateForm.proofImageUrl}
-                  <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
-                {/if}
-              </div>
             </div>
 
             <label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer pt-2">

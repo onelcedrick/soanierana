@@ -268,8 +268,8 @@
 
 <!-- MODAL MODIFICATION -->
 {#if editingMemberId}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" on:click={() => editingMemberId = null}>
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden" on:click|stopPropagation>
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" on:click={() => editingMemberId = null} role="presentation">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden" on:click|stopPropagation role="dialog" aria-modal="true">
       <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
         <h3 class="font-bold text-lg">Modifier le membre</h3>
         <button on:click={() => editingMemberId = null} class="text-slate-400 hover:text-slate-800">✕</button>
@@ -312,8 +312,8 @@
 
 <!-- MODAL MOT DE PASSE -->
 {#if selectedMemberId}
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" on:click={() => selectedMemberId = null}>
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" on:click|stopPropagation>
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" on:click={() => selectedMemberId = null} role="presentation">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden" on:click|stopPropagation role="dialog" aria-modal="true">
       <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
         <h3 class="font-bold text-lg">Créer un compte</h3>
         <button on:click={() => selectedMemberId = null} class="text-slate-400 hover:text-slate-800">✕</button>
