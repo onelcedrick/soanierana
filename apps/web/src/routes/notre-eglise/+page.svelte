@@ -79,24 +79,18 @@
     }
   });
 
-  function handleProofUpload(e: Event) {
+  
+  async function handleProofUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width, height = img.height;
-        if (width > 800) { height *= 800 / width; width = 800; }
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
-        donateForm.proofImageUrl = canvas.toDataURL('image/jpeg', 0.7);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    try {
+      donateForm.proofImageUrl = await uploadToCloudinary(file, 'donations_proofs');
+    } catch (err) {
+      console.error(err);
+      donateStatus.error = "Erreur lors de l'upload de la preuve.";
+    }
   }
+
 
   async function submitDonation(e: Event) {
     e.preventDefault();

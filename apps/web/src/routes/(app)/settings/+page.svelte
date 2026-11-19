@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import { uploadToCloudinary } from '$lib/utils/upload';
   import { PUBLIC_API_URL } from '$env/static/public';
 
   let loading = true;
@@ -62,32 +63,60 @@
     }
   });
 
-  // --- COMPRESSION IMAGE ---
-  function compressImage(file: File, maxW: number, format: string, quality: number, callback: (base64: string) => void) {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width, height = img.height;
-        if (width > maxW) { height *= maxW / width; width = maxW; }
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
-        callback(canvas.toDataURL(format, quality));
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+  
+
+  async function uploadToCloudinary(file: File): Promise<string> {
+    const token = get(auth).token!;
+    const signRes = await fetch(`${PUBLIC_API_URL}/cloudinary/sign`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!signRes.ok) throw new Error("Erreur de signature");
+    const { timestamp, signature, cloudName, apiKey } = await signRes.json();
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('api_key', apiKey);
+    formData.append('timestamp', timestamp.toString());
+    formData.append('signature', signature);
+    formData.append('folder', 'church_branding');
+
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!uploadRes.ok) throw new Error('Erreur upload Cloudinary');
+    const data = await uploadRes.json();
+    return data.secure_url;
   }
 
-  function handleLogoUpload(e: Event) {
+  async function handleLogoUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) compressImage(file, 400, 'image/png', 0.9, (b64) => logoPreview = b64);
+    if (!file) return;
+    savingLogo = true; error = '';
+    try {
+      logoPreview = await uploadToCloudinary(file);
+    } catch (err) {
+      console.error(err);
+      error = "Erreur lors de l'upload du logo sur Cloudinary.";
+    } finally {
+      savingLogo = false;
+    }
   }
 
-  function handleFileUpload(e: Event) {
+  async function handleFileUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) compressImage(file, 1200, 'image/jpeg', 0.8, (b64) => newCoverPreview = b64);
+    if (!file) return;
+    savingImage = true; error = '';
+    try {
+      newCoverPreview = await uploadToCloudinary(file);
+    } catch (err) {
+      console.error(err);
+      error = "Erreur lors de l'upload de l'image de fond sur Cloudinary.";
+    } finally {
+      savingImage = false;
+    }
   }
 
   // --- SAUVEGARDES ---

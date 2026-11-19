@@ -1,5 +1,6 @@
 <script lang="ts">
   import { confirmStore } from '$lib/stores/confirm';
+  import { uploadToCloudinary } from '$lib/utils/upload';
   import { auth } from '$lib/stores/auth';
   import { listAllPublications, createPublication, updatePublication, deletePublication, publishPublication } from '$lib/api/publications';
   import { goto } from '$app/navigation';
@@ -35,24 +36,18 @@
     }
   }
 
-  function handleFileUpload(e: Event) {
+  
+  async function handleFileUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width, height = img.height;
-        if (width > 1200) { height *= 1200 / width; width = 1200; }
-        canvas.width = width; canvas.height = height;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, width, height);
-        form.coverImageUrl = canvas.toDataURL('image/jpeg', 0.8);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    try {
+      form.coverImageUrl = await uploadToCloudinary(file, 'publications');
+    } catch (err) {
+      console.error(err);
+      error = "Erreur lors de l'upload de l'image.";
+    }
   }
+
 
   async function onSubmit(e: Event) {
     e.preventDefault();

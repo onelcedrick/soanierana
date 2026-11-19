@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { uploadToCloudinary } from '$lib/utils/upload';
   import { auth } from '$lib/stores/auth';
   import { listEvents, createEvent, updateEvent, deleteEvent, type Event } from '$lib/api/events';
   import { goto } from '$app/navigation';
@@ -29,15 +30,18 @@
     finally { loading = false; }
   }
 
+  
   async function handleFileUpload(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      form.coverImageUrl = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    try {
+      form.coverImageUrl = await uploadToCloudinary(file, 'events');
+    } catch (err) {
+      console.error(err);
+      error = "Erreur lors de l'upload de l'image.";
+    }
   }
+
 
   async function onSubmit(e: Event) {
     e.preventDefault();
