@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { confirmStore } from '$lib/stores/confirm';
-  import { uploadToCloudinary } from '$lib/utils/upload';
   import { auth } from '$lib/stores/auth';
   import { getActiveCampaign, updateCampaign, getAdminDonations, validateDonation } from '$lib/api/campaigns';
   import { listAlbums, createAlbum, updateAlbum, deleteAlbum, type Album } from "$lib/api/albums";
+  import { uploadToCloudinary } from '$lib/utils/upload';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -71,7 +70,6 @@
   }
 
   // --- GESTION CAMPAGNE ---
-  
   async function handleImage(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -82,7 +80,6 @@
       error = "Erreur lors de l'upload de l'image.";
     }
   }
-
 
   async function onSaveCampaign(e: Event) {
     e.preventDefault();
@@ -99,8 +96,7 @@
 
   // --- GESTION DONS ---
   async function onValidate(id: string) {
-    const confirmed = await confirmStore.confirm({ title: 'Confirmation', message: 'Confirmer la réception de ce don ?', type: 'warning' });
-          if (!confirmed) return;
+    if (!confirm('Confirmer la réception de ce don ?')) return;
     validatingId = id;
     try {
       await validateDonation(id, get(auth).token!);
@@ -114,7 +110,7 @@
   }
 
   // --- GESTION ALBUMS ---
-  function handleMultipleImages(e: Event) {
+  async function handleMultipleImages(e: Event) {
     const files = (e.target as HTMLInputElement).files;
     if (!files) return;
 
@@ -123,12 +119,19 @@
       return;
     }
 
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        albumForm.images = [...albumForm.images, event.target?.result as string];
-      };
-      reader.readAsDataURL(files[i]);
+    savingAlbum = true; error = '';
+    try {
+      const newImages: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const url = await uploadToCloudinary(files[i], 'church_albums');
+        newImages.push(url);
+      }
+      albumForm.images = [...albumForm.images, ...newImages];
+    } catch (err) {
+      console.error(err);
+      error = "Erreur lors de l'upload des images.";
+    } finally {
+      savingAlbum = false;
     }
   }
 
@@ -165,8 +168,7 @@
   }
 
   async function onDeleteAlbum(id: string) {
-    const confirmed = await confirmStore.confirm({ title: 'Confirmation', message: "Supprimer cet album ?", type: 'danger' });
-          if (!confirmed) return;
+    if (!confirm("Supprimer cet album ?")) return;
     try {
       await deleteAlbum(id, get(auth).token!);
       message = "Album supprimé";
@@ -185,9 +187,7 @@
   }
 </script>
 
-<!-- Conteneur principal englobant TOUT -->
 <div class="max-w-7xl mx-auto space-y-6 pb-12">
-  
   <!-- En-tête -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
     <div>
@@ -195,14 +195,36 @@
       <p class="text-sm md:text-base text-slate-500 mt-1">Configurez le projet de reconstruction et validez les dons reçus.</p>
     </div>
     <button on:click={loadData} class="w-full sm:w-auto text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition flex items-center justify-center gap-2">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>
+      Actualiser
+    </button>
+  </div>
 
-  <path d="M12 2L3 9h18L12 2z"></path>
-  <path d="M5 9v11h14V9"></path>
-  <path d="M9 22V12h6v10"></path>
-  <path d="M12 12v10"></path>
-</svg>
+  {#if message}
+    <div class="bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 flex items-start gap-2 shadow-sm">
+      <svg class="mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      {message}
+    </div>
+  {/if}
+  {#if error}
+    <div class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 flex items-start gap-2 shadow-sm">
+      <svg class="mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+      {error}
+    </div>
+  {/if}
+
+  {#if loading}
+    <div class="flex items-center gap-2 text-slate-500">
+      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      Chargement des données...
+    </div>
+  {:else}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
+      
+      <!-- CONFIGURATION CAMPAGNE -->
+      <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 lg:sticky lg:top-6">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           Configuration du projet
         </h2>
         
@@ -217,17 +239,10 @@
             <input type="number" bind:value={campaignData.goalAmount} required min="0" class="w-full border border-slate-300 px-4 py-2.5 rounded-xl outline-none focus:border-brand-500 text-sm md:text-base transition" />
           </div>
 
-          <!-- UTILISATION DU THEME DYNAMIQUE (brand) -->
           <div class="bg-brand-50 p-4 rounded-xl border border-brand-100">
             <label class="block text-sm font-medium text-brand-900 mb-1">Trésorerie de départ (Ar)</label>
             <p class="text-[11px] text-brand-700 mb-2">Fonds déjà disponibles avant le lancement.</p>
-            <input 
-              type="number" 
-              bind:value={campaignData.initialAmount} 
-              required 
-              min="0" 
-              class="w-full border border-brand-200 px-3 py-2.5 rounded-lg bg-white outline-none focus:border-brand-500 font-bold text-brand-900 text-sm md:text-base" 
-            />
+            <input type="number" bind:value={campaignData.initialAmount} required min="0" class="w-full border border-brand-200 px-3 py-2.5 rounded-lg bg-white outline-none focus:border-brand-500 font-bold text-brand-900 text-sm md:text-base" />
           </div>
 
           <div>
@@ -256,7 +271,7 @@
         </form>
       </div>
 
-      <!-- COLONNE DE DROITE : Liste des dons -->
+      <!-- LISTE DES DONS -->
       <div class="lg:col-span-2 space-y-4">
         <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
           <svg class="text-green-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
@@ -272,7 +287,6 @@
             {#each donations as don}
               <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition">
                 
-                <!-- PREUVE (Cliquable) -->
                 {#if don.proofImageUrl}
                   <button type="button" on:click={() => openProof(don.proofImageUrl)} class="relative w-full sm:w-24 h-40 sm:h-24 rounded-xl overflow-hidden border border-slate-200 shrink-0 group/img block cursor-pointer focus:outline-none bg-slate-50">
                     <img src={don.proofImageUrl} alt="Preuve" class="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-300" />
@@ -304,11 +318,7 @@
 
                 <div class="flex flex-col gap-2 items-end shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
                   {#if don.status === 'PENDING'}
-                    <button 
-                      on:click={() => onValidate(don.id)} 
-                      disabled={validatingId === don.id}
-                      class="w-full sm:w-auto bg-green-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-green-500 transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm"
-                    >
+                    <button on:click={() => onValidate(don.id)} disabled={validatingId === don.id} class="w-full sm:w-auto bg-green-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-green-500 transition disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm">
                       {#if validatingId === don.id}
                         <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Validation...
@@ -327,7 +337,7 @@
 
     </div>
 
-    <!-- SECTION ALBUMS (Maintenant DANS le conteneur principal) -->
+    <!-- SECTION ALBUMS -->
     <div class="mt-12 pt-8 border-t border-slate-200">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 class="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -396,7 +406,6 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1.5">Photos (Max 10)</label>
-            <!-- UTILISATION DU THEME DYNAMIQUE (brand) POUR L'UPLOAD -->
             <input type="file" accept="image/*" multiple on:change={handleMultipleImages} class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer border border-slate-200 rounded-xl bg-slate-50 transition" />
           </div>
           {#if albumForm.images.length > 0}
@@ -422,24 +431,12 @@
 
 <!-- MODAL POUR AFFICHER LA PREUVE -->
 {#if showProofModal}
-  <div 
-    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm" 
-    on:click={() => showProofModal = false} 
-    role="presentation"
-  >
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm" on:click={() => showProofModal = false} role="presentation">
     <div class="relative max-w-3xl w-full max-h-[90vh] flex flex-col" on:click|stopPropagation role="dialog" aria-modal="true">
-      <button 
-        on:click={() => showProofModal = false} 
-        class="absolute -top-12 right-0 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition"
-        title="Fermer"
-      >
+      <button on:click={() => showProofModal = false} class="absolute -top-12 right-0 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition" title="Fermer">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
       </button>
-      <img 
-        src={currentProofImage} 
-        alt="Preuve de paiement" 
-        class="w-full h-auto max-h-[85vh] object-contain rounded-xl shadow-2xl bg-white" 
-      />
+      <img src={currentProofImage} alt="Preuve de paiement" class="w-full h-auto max-h-[85vh] object-contain rounded-xl shadow-2xl bg-white" />
     </div>
   </div>
 {/if}
