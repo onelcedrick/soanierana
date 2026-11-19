@@ -65,6 +65,7 @@ export async function authRoutes(app: FastifyInstance, opts: { container: Contai
       churchId: user.churchId,
       role: user.role,
       memberId: user.memberId,
+      email: user.email,
     });
     return reply.status(200).send({ token, user });
   });

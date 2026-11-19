@@ -10,6 +10,7 @@ export interface JwtPayload {
   churchId: string;
   role: UserRole;
   memberId: string | null;
+  email: string; // 👈 Ajout de l'email
 }
 
 declare module 'fastify' {

@@ -27,6 +27,9 @@
 
   // 🔐 Vérification Super Admin (rendue plus robuste)
   $: isSuperAdmin = $auth.user?.email?.toLowerCase() === 'admin@soanierana.com';
+  
+  // DEBUG : Affiche le contenu de l'utilisateur dans la console (F12)
+  $: if ($auth.user) console.log("Utilisateur connecté :", $auth.user);
 
   onMount(async () => {
     if (!$auth.token) return goto('/login');
