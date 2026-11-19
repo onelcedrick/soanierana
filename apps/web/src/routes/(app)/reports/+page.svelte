@@ -30,6 +30,7 @@
 <!-- En-tête de la page -->
 <div class="mb-6 md:mb-8 flex items-center gap-3">
   <div class="bg-brand-50 p-2.5 rounded-xl text-brand-600">
+        <h2 class="font-bold text-base md:text-lg text-slate-800 mb-4 flex items-center gap-2">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
   <path d="M12 2L3 9h18L12 2z"></path>
