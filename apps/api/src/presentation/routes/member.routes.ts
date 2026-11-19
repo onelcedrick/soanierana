@@ -1,79 +1,88 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { CreateMemberUseCase } from '../../application/member/create-member.use-case';
-import { CreateMemberAccountUseCase } from '../../application/member/create-member-account.use-case';
-import { ListMembersUseCase } from '../../application/member/list-members.use-case';
-import { GetProfileUseCase } from '../../application/member/get-profile.use-case';
-import { PasswordService } from '../../application/auth/password.service';
-import type { Container } from '../container';
+import { eq, and } from 'drizzle-orm';
+import { db } from '../../infrastructure/database/client';
+import { members } from '../../infrastructure/database/schema/member.table';
+import { randomUUID } from 'node:crypto';
 
-const StatusEnum = z.enum(['LOCAL_BAPTIZED', 'EXTERNAL_BAPTIZED', 'UNBAPTIZED']);
-const LevelEnum = z.enum(['LOHOLONA', 'DIAKONA', 'MAMBRA_TSOTRA']);
+// Le compte super admin autorisé à modifier/supprimer
+const SUPER_ADMIN_EMAIL = 'admin@soanierana.com';
 
-const CreateBody = z.object({
-  churchId: z.string().uuid(),
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(6),
-  membershipStatus: StatusEnum,
-  responsibilityLevel: LevelEnum,
-});
+export async function memberRoutes(app: FastifyInstance): Promise<void> {
+  
+  // GET : Lister les membres
+  app.get('/members', async (req, reply) => {
+    const q = z.object({ churchId: z.string().uuid() }).parse(req.query);
+    const list = await db.select().from(members).where(eq(members.churchId, q.churchId));
+    return reply.send(list);
+  });
 
-const CreateAccountBody = z.object({
-  memberId: z.string().uuid(),
-  password: z.string().min(8),
-});
+  // POST : Ajouter un membre
+  app.post('/members', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const body = z.object({
+      churchId: z.string().uuid(),
+      firstName: z.string().min(1),
+      lastName: z.string().min(1),
+      email: z.string().email(),
+      phone: z.string(),
+      membershipStatus: z.string(),
+      responsibilityLevel: z.string(),
+    }).parse(req.body);
 
-const AssignSkillBody = z.object({
-  memberId: z.string().uuid(),
-  skillId: z.string().uuid(),
-});
+    const id = randomUUID();
+    const now = new Date();
 
-const ListQuery = z.object({ churchId: z.string().uuid() });
-const ExportQuery = z.object({ churchId: z.string().uuid() });
+    await db.insert(members).values({
+      id,
+      churchId: body.churchId,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      phone: body.phone,
+      membershipStatus: body.membershipStatus,
+      responsibilityLevel: body.responsibilityLevel,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    });
 
-export async function memberRoutes(app: FastifyInstance, opts: { container: Container }): Promise<void> {
-  const c = opts.container;
-  const createMember = new CreateMemberUseCase(c.memberRepository, c.churchRepository);
-  const createAccount = new CreateMemberAccountUseCase(c.userRepository, c.memberRepository, new PasswordService());
-  const listMembers = new ListMembersUseCase(c.memberRepository);
-  const getProfile = new GetProfileUseCase(c.memberRepository);
+    return reply.status(201).send({ id });
+  });
 
-  // Route pour le profil du membre connecté
-  app.get('/members/me', { preHandler: [app.authenticate] }, async (req, reply) => {
-    const user = req.currentUser!;
-    if (!user.memberId) {
-      return reply.status(404).send({ error: 'Aucun profil membre associe a ce compte' });
+  // PUT : Modifier un membre (Réservé au Super Admin)
+  app.put('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const user = req.currentUser;
+    
+    // 🚨 VÉRIFICATION STRICTE : Seul admin@soanierana.com peut modifier
+    if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+      return reply.status(403).send({ error: "Seul le super administrateur peut modifier un membre." });
     }
-    return reply.send(await getProfile.execute(user.memberId));
+
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const body = z.object({
+      firstName: z.string().min(1).optional(),
+      lastName: z.string().min(1).optional(),
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+      membershipStatus: z.string().optional(),
+      responsibilityLevel: z.string().optional(),
+    }).parse(req.body);
+
+    await db.update(members).set({ ...body, updatedAt: new Date() }).where(eq(members.id, id));
+    return reply.send({ success: true });
   });
 
-  app.get('/members', { preHandler: [app.authorize('ADMIN')] }, async (request, reply) => {
-    const q = ListQuery.parse(request.query);
-    return reply.send(await listMembers.execute(q.churchId));
-  });
+  // DELETE : Supprimer un membre (Réservé au Super Admin)
+  app.delete('/members/:id', { preHandler: [app.authenticate] }, async (req, reply) => {
+    const user = req.currentUser;
+    
+    // 🚨 VÉRIFICATION STRICTE
+    if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+      return reply.status(403).send({ error: "Seul le super administrateur peut supprimer un membre." });
+    }
 
-  app.post('/members', { preHandler: [app.authorize('ADMIN')] }, async (request, reply) => {
-    const body = CreateBody.parse(request.body);
-    return reply.status(201).send(await createMember.execute(body));
-  });
-
-  app.post('/members/create-account', { preHandler: [app.authorize('ADMIN')] }, async (request, reply) => {
-    const body = CreateAccountBody.parse(request.body);
-    return reply.status(201).send(await createAccount.execute(body));
-  });
-
-  app.post('/members/assign-skill', { preHandler: [app.authenticate] }, async (request, reply) => {
-    const body = AssignSkillBody.parse(request.body);
-    return reply.status(200).send(await c.assignSkillUseCase.execute(body));
-  });
-
-  app.get('/members/export', { preHandler: [app.authorize('ADMIN')] }, async (request, reply) => {
-    const q = ExportQuery.parse(request.query);
-    const csv = await c.exportMembersUseCase.execute(q.churchId);
-    reply.header('Content-Type', 'text/csv');
-    reply.header('Content-Disposition', 'attachment; filename="membres.csv"');
-    return reply.send(csv);
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    await db.delete(members).where(eq(members.id, id));
+    return reply.status(204).send();
   });
 }
