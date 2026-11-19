@@ -85,32 +85,39 @@
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
-    // Vérification de sécurité pour mobile
-    if (!(file instanceof File)) {
-      donateStatus.error = "Le fichier sélectionné n'est pas valide.";
-      return;
-    }
-
     // Vérification de la taille (max 10 Mo)
     if (file.size > 10 * 1024 * 1024) {
-      donateStatus.error = "L'image est trop lourde (maximum 10 Mo). Veuillez choisir une autre photo.";
+      donateStatus.error = "L'image est trop lourde (maximum 10 Mo).";
       return;
     }
 
     try {
-      // 🚨 CORRECTION MOBILE : On force le type MIME et le nom du fichier
-      // Certains navigateurs mobiles (Android) renvoient un type vide ou bizarre
-      // qui fait échouer Cloudinary. On le corrige avant l'envoi.
-      const correctedFile = new File([file], 'preuve.jpg', { 
-        type: 'image/jpeg', 
-        lastModified: Date.now() 
+      // 🚨 CONVERSION EN JPEG VIA CANVAS
+      // Cela garantit un format supporté par Cloudinary, même si le téléphone
+      // a pris la photo en HEIC ou avec un type MIME bizarre.
+      const imageBitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(imageBitmap, 0, 0);
+
+      // On convertit en Blob JPEG (qualité 0.85 pour un bon compromis)
+      const jpegBlob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/jpeg', 0.85);
       });
 
+      if (!jpegBlob) throw new Error("Impossible de convertir l'image.");
+
+      // On crée un nouveau fichier avec un nom et un type corrects
+      const correctedFile = new File([jpegBlob], 'preuve.jpg', { type: 'image/jpeg' });
+
+      // On envoie le fichier corrigé à Cloudinary
       donateForm.proofImageUrl = await uploadToCloudinary(correctedFile, 'donations_proofs');
       donateStatus.error = ''; // Effacer l'erreur en cas de succès
     } catch (err) {
-      console.error(err);
-      donateStatus.error = "Erreur lors de l'upload de la preuve. Vérifiez votre connexion.";
+      console.error("Erreur détaillée:", err);
+      donateStatus.error = "Erreur lors du traitement de l'image. Veuillez réessayer.";
     }
   }
 
