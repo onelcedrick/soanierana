@@ -38,7 +38,7 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative border border-slate-100" on:click|stopPropagation role="dialog" aria-modal="true">
       
       <!-- Bouton Fermer -->
-      <button on:click={onClose} class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition z-10">
+      <button aria-label="Fermer" on:click={onClose} class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition z-10">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
       </button>
 
@@ -59,12 +59,12 @@
 
         <form on:submit={onSubmit} class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Sujet</label>
-            <input bind:value={form.subject} required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500" placeholder="Ex: Question sur le programme..." />
+            <label for="msg-subject" class="block text-sm font-medium text-slate-700 mb-1">Sujet</label>
+            <input id="msg-subject" bind:value={form.subject} required class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500" placeholder="Ex: Question sur le programme..." />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Message</label>
-            <textarea bind:value={form.content} required rows="4" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500" placeholder="Écrivez votre message ici..."></textarea>
+            <label for="msg-content" class="block text-sm font-medium text-slate-700 mb-1">Message</label>
+            <textarea id="msg-content" bind:value={form.content} required rows="4" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 outline-none focus:border-brand-500" placeholder="Écrivez votre message ici..."></textarea>
           </div>
           
           <!-- Case à cocher pour l'anonymat -->
