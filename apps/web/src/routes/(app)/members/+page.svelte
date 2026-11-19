@@ -26,10 +26,10 @@
   let editForm = { firstName: '', lastName: '', email: '', phone: '', photoUrl: '', membershipStatus: '', responsibilityLevel: '' };
 
   // 🔐 Vérification Super Admin (rendue plus robuste)
-  $: canManageMembers = $auth.user?.email?.toLowerCase() === 'admin@soanierana.com' || $auth.user?.role === 'RESPONSABLE' || $auth.user?.role === 'ADMIN';
+  $: canManageMembers = ['ADMIN', 'RESPONSABLE', 'LOHOLONA'].includes($auth.user?.role);
   
   // DEBUG : Affiche le contenu de l'utilisateur dans la console (F12)
-  $: if ($auth.user) console.log("Utilisateur connecté :", $auth.user);
+  
 
   onMount(async () => {
     if (!$auth.token) return goto('/login');
