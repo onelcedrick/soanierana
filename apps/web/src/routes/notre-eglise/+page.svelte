@@ -428,7 +428,7 @@
 
               <div>
                 <label class="block text-xs text-slate-500 mb-1">Capture d'écran (Optionnel)</label>
-                <input type="file" accept="image/*" on:change={handleProofUpload} class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
+                <input type="file" on:change={handleProofUpload} class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
                 {#if donateForm.proofImageUrl}
                   <img src={donateForm.proofImageUrl} class="mt-2 h-16 object-contain rounded border bg-white" alt="Preuve" />
                 {/if}

@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@churchtask/contracts": "workspace:*",
-    "@vercel/analytics": "^2.0.1"
+    "@vercel/analytics": "^2.0.1",
+    "heic-normalize": "^1.0.0"
   }
 }
