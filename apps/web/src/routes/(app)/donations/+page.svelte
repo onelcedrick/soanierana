@@ -195,36 +195,13 @@
       <p class="text-sm md:text-base text-slate-500 mt-1">Configurez le projet de reconstruction et validez les dons reçus.</p>
     </div>
     <button on:click={loadData} class="w-full sm:w-auto text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition flex items-center justify-center gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>
-      Actualiser
-    </button>
-  </div>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
-  {#if message}
-    <div class="bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 flex items-start gap-2 shadow-sm">
-      <svg class="mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-      {message}
-    </div>
-  {/if}
-  {#if error}
-    <div class="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 flex items-start gap-2 shadow-sm">
-      <svg class="mt-0.5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
-      {error}
-    </div>
-  {/if}
-
-  {#if loading}
-    <div class="flex items-center gap-2 text-slate-500">
-      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-      Chargement des données...
-    </div>
-  {:else}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 items-start">
-      
-      <!-- COLONNE DE GAUCHE : Configuration de la campagne -->
-      <div class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-100 lg:sticky lg:top-6">
-        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <svg class="text-brand-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+  <path d="M12 2L3 9h18L12 2z"></path>
+  <path d="M5 9v11h14V9"></path>
+  <path d="M9 22V12h6v10"></path>
+  <path d="M12 12v10"></path>
+</svg>
           Configuration du projet
         </h2>
         

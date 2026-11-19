@@ -52,18 +52,13 @@
   
   <!-- Bouton Retour à l'accueil (Flèche) -->
   <a href="/" class="absolute top-4 left-4 md:top-6 md:left-6 z-20 flex items-center gap-2 text-slate-500 hover:text-brand-600 transition bg-white/50 p-2 rounded-full hover:bg-white shadow-sm">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    <span class="hidden sm:inline text-sm font-medium pr-1">Retour</span>
-  </a>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
-  <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-  <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-
-  <div class="relative z-10 w-full max-w-md mt-8">
-    
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-lg mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand-600"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+  <path d="M12 2L3 9h18L12 2z"></path>
+  <path d="M5 9v11h14V9"></path>
+  <path d="M9 22V12h6v10"></path>
+  <path d="M12 12v10"></path>
+</svg>
       </div>
       <h1 class="text-2xl font-bold text-slate-900 tracking-tight">ChurchTask</h1>
       {#if churchName}

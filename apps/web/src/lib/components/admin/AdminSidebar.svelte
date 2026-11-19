@@ -36,7 +36,13 @@
       <img src={logoUrl} alt="Logo" class="w-10 h-10 object-contain rounded-lg bg-white p-1" />
     {:else}
       <div class="text-amber-500">
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+  <path d="M12 2L3 9h18L12 2z"></path>
+  <path d="M5 9v11h14V9"></path>
+  <path d="M9 22V12h6v10"></path>
+  <path d="M12 12v10"></path>
+</svg>
       </div>
     {/if}
     <div class="leading-tight overflow-hidden">
