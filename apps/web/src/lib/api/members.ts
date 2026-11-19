@@ -39,3 +39,12 @@ export async function exportMembers(churchId: string, token: string): Promise<Bl
   });
   return res.blob();
 }
+
+// --- FONCTIONS AJOUTÉES POUR LE PROFIL MEMBRE ---
+export function getMyProfile(token: string): Promise<AdminMember> {
+  return apiFetch('/members/me', { token });
+}
+
+export function getMemberProfile(memberId: string, token: string): Promise<AdminMember> {
+  return apiFetch(`/members/${memberId}`, { token });
+}
