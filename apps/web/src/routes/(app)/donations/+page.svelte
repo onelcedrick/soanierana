@@ -195,6 +195,7 @@
       <p class="text-sm md:text-base text-slate-500 mt-1">Configurez le projet de reconstruction et validez les dons reçus.</p>
     </div>
     <button on:click={loadData} class="w-full sm:w-auto text-sm font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-xl transition flex items-center justify-center gap-2">
+        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 
   <path d="M12 2L3 9h18L12 2z"></path>
