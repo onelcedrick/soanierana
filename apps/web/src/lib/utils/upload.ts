@@ -2,19 +2,18 @@ import { get } from 'svelte/store';
 import { auth } from '$lib/stores/auth';
 import { PUBLIC_API_URL } from '$env/static/public';
 
-/**
- * Envoie un fichier sur Cloudinary et retourne l'URL sécurisée.
- * @param file Le fichier à uploader
- * @param folder Le dossier Cloudinary (ex: 'branding', 'publications')
- */
 export async function uploadToCloudinary(file: File, folder: string = 'church_app'): Promise<string> {
   const token = get(auth).token;
   if (!token) throw new Error("Utilisateur non connecté");
 
-  // 1. Obtenir la signature depuis le backend
+  // 1. Obtenir la signature depuis le backend EN ENVOYANT LE DOSSIER
   const signRes = await fetch(`${PUBLIC_API_URL}/cloudinary/sign`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify({ folder }) // 👈 On envoie le dossier ici
   });
   
   if (!signRes.ok) throw new Error("Erreur de signature Cloudinary");
