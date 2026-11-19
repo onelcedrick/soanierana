@@ -36,13 +36,13 @@
       <img src={logoUrl} alt="Logo" class="w-10 h-10 object-contain rounded-lg bg-white p-1" />
     {:else}
       <div class="text-amber-500">
+        <!-- NOUVELLE ICÔNE ÉGLISE -->
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-
-  <path d="M12 2L3 9h18L12 2z"></path>
-  <path d="M5 9v11h14V9"></path>
-  <path d="M9 22V12h6v10"></path>
-  <path d="M12 12v10"></path>
-</svg>
+          <path d="M10 9h4"></path>
+          <path d="M12 7v4"></path>
+          <path d="M4 21v-8l8-6 8 6v8"></path>
+          <path d="M8 21v-4a4 4 0 0 1 8 0v4"></path>
+        </svg>
       </div>
     {/if}
     <div class="leading-tight overflow-hidden">
@@ -93,7 +93,6 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span class="text-sm">Formulaires</span>
         </a>
-        <!-- Lien "Campagne" supprimé ici -->
         <a href="/donations" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {isActive('/donations') ? 'text-white bg-slate-800' : 'hover:text-white hover:bg-slate-800/50'}">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"></rect><circle cx="12" cy="12" r="2"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
           <span class="text-sm">Campagne & Dons</span>
