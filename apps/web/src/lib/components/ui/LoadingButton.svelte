@@ -4,13 +4,15 @@
   export let loadingText = 'Chargement...';
   export let disabled = false;
   export let type: 'button' | 'submit' = 'submit';
-  export let class: string = '';
+  // 👇 On ne déclare pas "class" ici car c'est un mot réservé.
+  // Svelte va automatiquement transmettre la classe via $$restProps.
 </script>
 
 <button
   {type}
   disabled={loading || disabled}
-  class="relative flex items-center justify-center gap-2 {class} disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+  class="relative flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+  {...$$restProps}
 >
   {#if loading}
     <svg class="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
