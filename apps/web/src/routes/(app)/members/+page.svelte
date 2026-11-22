@@ -14,6 +14,7 @@
     membershipStatus: 'LOCAL_BAPTIZED', responsibilityLevel: 'MAMBRA_TSOTRA',
   };
   let submittingMember = false;
+  let savingMember = false;
   let message = '';
   let error = '';
 

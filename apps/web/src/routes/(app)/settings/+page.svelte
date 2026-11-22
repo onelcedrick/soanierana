@@ -28,6 +28,7 @@
   let primaryColor = '#0ea5e9';
   let isDarkMode = false;
   let savingTheme = false;
+  let savingThemeBtn = false;
   let themeMsg = '';
 
   $: totalWeight = settings ? 
