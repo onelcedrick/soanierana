@@ -7,6 +7,7 @@
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
   import { PUBLIC_API_URL } from '$env/static/public';
+  import LoadingButton from '$lib/components/ui/LoadingButton.svelte';
 
   let loading = true;
   let message = '';
@@ -203,9 +204,7 @@
               <button type="button" on:click={() => { primaryColor = '#E91E63'; previewTheme(); }} class="bg-pink-50 hover:bg-pink-100 text-pink-700 font-medium px-3 py-1.5 rounded-lg transition">Octobre Rose</button>
               <button type="button" on:click={() => { primaryColor = '#DC2626'; previewTheme(); }} class="bg-red-50 hover:bg-red-100 text-red-700 font-medium px-3 py-1.5 rounded-lg transition">Noël</button>
             </div>
-            <button on:click={onSaveTheme} disabled={savingTheme} class="w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 transition disabled:opacity-50 text-sm md:text-base shadow-sm mt-2">
-              {savingTheme ? 'Enregistrement...' : 'Enregistrer le thème'}
-            </button>
+            <LoadingButton on:click={onSaveTheme} loading={savingTheme} text="Enregistrer le thème" loadingText="Enregistrement..." class="w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 text-sm md:text-base shadow-sm mt-2" />
           </div>
           <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-center">
             <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Aperçu</p>
@@ -233,9 +232,7 @@
             <input title="Choisir un logo" type="file" accept="image/*" on:change={handleLogoUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <p class="text-sm font-bold text-slate-700">Choisir un logo</p>
           </div>
-          <button on:click={onSaveLogo} disabled={savingLogo} class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 transition disabled:opacity-50 text-sm md:text-base shadow-sm">
-            {savingLogo ? 'Enregistrement...' : 'Enregistrer le logo'}
-          </button>
+          <LoadingButton on:click={onSaveLogo} loading={savingLogo} text="Enregistrer le logo" loadingText="Enregistrement..." class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 text-sm md:text-base shadow-sm" />
         </div>
         <div class="rounded-xl border border-slate-200 bg-slate-50 h-40 flex items-center justify-center p-4">
           {#if logoPreview}
@@ -264,9 +261,7 @@
             <input title="Choisir une image" type="file" accept="image/*" on:change={handleFileUpload} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <p class="text-sm font-bold text-slate-700">Choisir une image</p>
           </div>
-          <button on:click={onSaveImage} disabled={savingImage} class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 transition disabled:opacity-50 text-sm md:text-base shadow-sm">
-            {savingImage ? 'Enregistrement...' : 'Enregistrer l\'image'}
-          </button>
+          <LoadingButton on:click={onSaveImage} loading={savingImage} text="Enregistrer l'image" loadingText="Enregistrement..." class="mt-4 w-full bg-slate-900 text-white font-bold rounded-xl py-3 hover:bg-slate-800 text-sm md:text-base shadow-sm" />
         </div>
         <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 h-40 flex items-center justify-center">
           {#if newCoverPreview}

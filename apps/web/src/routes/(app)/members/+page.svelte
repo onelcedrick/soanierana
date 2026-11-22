@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { confirmStore } from '$lib/stores/confirm';
+  import LoadingButton from '$lib/components/ui/LoadingButton.svelte';
 
   let members: AdminMember[] = [];
   let loading = true;
@@ -12,6 +13,7 @@
     firstName: '', lastName: '', email: '', phone: '', photoUrl: '',
     membershipStatus: 'LOCAL_BAPTIZED', responsibilityLevel: 'MAMBRA_TSOTRA',
   };
+  let submittingMember = false;
   let message = '';
   let error = '';
 
@@ -209,7 +211,7 @@
     </div>
   </div>
 
-  <button type="submit" class="w-full sm:w-auto bg-slate-900 text-white rounded-xl py-3 px-8 font-bold hover:bg-slate-800 transition mt-2">Ajouter le membre</button>
+  <LoadingButton type="submit" loading={submittingMember} text="Ajouter le membre" loadingText="Ajout en cours..." class="w-full sm:w-auto bg-slate-900 text-white rounded-xl py-3 px-8 font-bold hover:bg-slate-800 mt-2" />
 </form>
 
 <div class="flex items-center gap-2 mb-4">

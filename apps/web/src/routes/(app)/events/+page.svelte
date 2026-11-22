@@ -5,6 +5,7 @@
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   import { confirmStore } from '$lib/stores/confirm';
+  import LoadingButton from '$lib/components/ui/LoadingButton.svelte';
 
   let events: Event[] = [];
   let loading = true;
@@ -14,6 +15,7 @@
     title: '', description: '', startDate: '', endDate: '', location: '',
     coverImageUrl: '', status: 'PUBLISHED'
   };
+  let savingEvent = false;
   let message = '';
   let error = '';
 
@@ -187,9 +189,7 @@
     {/if}
   </div>
 
-  <button type="submit" class="md:col-span-2 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-500 transition text-sm md:text-base shadow-sm mt-2">
-    {editingId ? 'Enregistrer les modifications' : 'Créer l\'événement'}
-  </button>
+  <LoadingButton type="submit" loading={savingEvent} text={editingId ? "Enregistrer les modifications" : "Créer l'événement"} loadingText="Enregistrement..." class="md:col-span-2 bg-brand-600 text-white rounded-xl py-3.5 font-bold hover:bg-brand-500 text-sm md:text-base shadow-sm mt-2" />
 </form>
 
 <div class="flex items-center gap-2 mb-4">
