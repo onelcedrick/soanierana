@@ -10,7 +10,7 @@ export interface JwtPayload {
   churchId: string;
   role: UserRole;
   memberId: string | null;
-  email: string; // 👈 Ajout de l'email
+  email: string;
 }
 
 declare module 'fastify' {
@@ -33,7 +33,8 @@ declare module '@fastify/jwt' {
 async function authPluginImpl(app: FastifyInstance): Promise<void> {
   await app.register(fastifyJwt, {
     secret: env.JWT_SECRET,
-    sign: { expiresIn: '7d' },
+    // 🚀 TOKEN PERMANENT : 10 ans au lieu de 7 jours
+    sign: { expiresIn: '3650d' },
   });
 
   app.decorate('authenticate', async (request: FastifyRequest, _reply: FastifyReply) => {
